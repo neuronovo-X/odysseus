@@ -1,77 +1,68 @@
-# Odysseus
+# Одиссея
 
 ```
 ───────────────────────────────────────────────
- ⊹ ࣪ ˖ ૮( ˶ᵔ ᵕ ᵔ˶ )っ  Odysseus vers. 1.0
+ ⊹ ࣪ ˖ ૮( ˶ᵔ ᵕ ᵔ˶ )っ  Одиссея · Нейроново
 ───────────────────────────────────────────────
 ```
 
-![Odysseus](docs/odysseus.jpg)
+![Одиссея](docs/odysseus.jpg)
 
-A self-hosted AI workspace -- meant to be the self-hosted version of the UI experience you get from ChatGPT and Claude. But with more jank and fun. Running on your own hardware, with your own data -- local-first, privacy-first, and no trojan.
+Self-hosted AI-рабочее пространство — то же удобство, что и в ChatGPT с Claude, но на вашем железе, с вашими данными. Без облаков, без слежки, без лишнего.
 
-## Features
-  - **Chat** -- chat with any local model or API; adding them is super simple.<br>　<sub>vLLM · llama.cpp · Ollama · OpenRouter · OpenAI</sub>
-  - **Agent** -- hand it tools and let it run the whole task itself.<br>　<sub>built on [opencode](https://github.com/anomalyco/opencode) · MCP · web · files · shell · skills · memory</sub>
-  - **Cookbook** -- Scans your hardware, recommends models, click to download and serve.. easy!<br>　<sub>built on [llmfit](https://github.com/AlexsJones/llmfit) · VRAM-aware · GGUF / FP8 / AWQ · fit scoring · vLLM / llama.cpp serving</sub>
-  - **Deep Research** -- multi-step runs that gather, read, and synthesize sources into a nice visual report.<br>　<sub>adapted from [Tongyi DeepResearch](https://github.com/Alibaba-NLP/DeepResearch)</sub>
-  - **Compare** -- a fun tool to compare models side by side. Test completely blind, no bias!<br>　<sub>multi-model · blind test · synthesis</sub>
-  - **Documents** -- YOU write the text, AI is there to assist, not the opposite.<br>　<sub>multi-tab editor · markdown · HTML · CSV · syntax highlighting · AI edits · suggestions</sub>
-  - **Memory / Skills** -- Persistent memory and skills, your agent evolves over time as it better understands you and your tasks!<br>　<sub>ChromaDB · fastembed (ONNX) · vector + keyword retrieval · import/export</sub>
-  - **Email** -- IMAP/SMTP inbox with AI triage built in: urgency reminders, auto-tag, auto-summary, auto-reply drafts, auto-spam.<br>　<sub>IMAP · SMTP · per-account routing · CalDAV-aware</sub>
-  - **Notes & Tasks** -- Quick notes with reminders, a todo list, and scheduled tasks the agent can act on.<br>　<sub>note pings · checklist · cron-style tasks · ntfy / browser / email channels</sub>
-  - **Calendar** -- Local-first calendar with CalDAV sync to Radicale / Nextcloud / Apple / Fastmail.<br>　<sub>CalDAV pull · .ics import/export · per-calendar colors · agent-aware</sub>
-  - **Works on mobile** -- looks and runs great on your phone, not just desktop.<br>　<sub>responsive · installable (PWA) · touch gestures</sub>
-  - **Extras** -- more to explore, happy if you give it a go!<br>　<sub>image editor · theme editor · file uploads (vision + PDF) · web search · presets · sessions · 2FA</sub>
+## Возможности
+  - **Чат** — общайтесь с любой локальной моделью или через API; подключить — проще простого.<br>　<sub>vLLM · llama.cpp · Ollama · OpenRouter · OpenAI</sub>
+  - **Агент** — дайте ему инструменты и пусть сам решает задачу целиком.<br>　<sub>на базе [opencode](https://github.com/anomalyco/opencode) · MCP · веб · файлы · оболочка · навыки · память</sub>
+  - **Каталог моделей** — сканирует ваше железо, рекомендует модели, скачивает и запускает в один клик.<br>　<sub>на базе [llmfit](https://github.com/AlexsJones/llmfit) · VRAM-aware · GGUF / FP8 / AWQ · оценка подходимости · vLLM / llama.cpp</sub>
+  - **Глубокое исследование** — многошаговый поиск с чтением источников и синтезом в красивый отчёт.<br>　<sub>адаптировано из [Tongyi DeepResearch](https://github.com/Alibaba-NLP/DeepResearch)</sub>
+  - **Сравнение** — сравнивайте модели бок о бок. Слепой тест — без предвзятости!<br>　<sub>мультимодельный · слепое тестирование · синтез</sub>
+  - **Документы** — ВАМИ пишется текст, ИИ лишь помогает — не наоборот.<br>　<sub>многовкладочный редактор · Markdown · HTML · CSV · подсветка синтаксиса · правки ИИ · подсказки</sub>
+  - **Память / навыки** — постоянная память и навыки; агент развивается, всё лучше понимая вас и ваши задачи.<br>　<sub>ChromaDB · fastembed (ONNX) · векторный + ключевой поиск · импорт/экспорт</sub>
+  - **Почта** — IMAP/SMTP-ящик со встроенной ИИ-сортировкой: напоминания о важных письмах, автотеги, авторезюме, авточерновики ответов, антиспам.<br>　<sub>IMAP · SMTP · раздельная маршрутизация по аккаунтам · CalDAV</sub>
+  - **Заметки и задачи** — быстрые заметки с напоминаниями, список дел и плановые задачи, которые агент может выполнять сам.<br>　<sub>пинги заметок · чеклисты · cron-задачи · ntfy / браузер / email</sub>
+  - **Календарь** — локальный календарь с CalDAV-синхронизацией (Radicale / Nextcloud / Apple / Fastmail).<br>　<sub>CalDAV · импорт/экспорт .ics · цвета на каждый календарь · интеграция с агентом</sub>
+  - **Работает на мобильных** — отлично выглядит и работает на телефоне, не только на десктопе.<br>　<sub>адаптивный · устанавливаемый (PWA) · жесты</sub>
+  - **Дополнительно** — есть что изучить, попробуйте!<br>　<sub>редактор изображений · редактор тем · загрузка файлов (vision + PDF) · веб-поиск · пресеты · сессии · 2FA</sub>
 
-## Demo
-A full, hover-to-play tour lives on the landing page (`docs/index.html`).
+## Демо
+Полный интерактивный тур (наведи — воспроизвести) живёт на лендинге (`docs/index.html`).
 
 <details>
-<summary>Screenshots / clips</summary>
+<summary>Скриншоты и записи</summary>
 
-### Chat & Agents
-![Chat & Agents](docs/chat.gif)
-### Deep Research
-![Deep Research](docs/research.gif)
-### Compare
-![Compare](docs/compare.gif)
-### Documents
-![Documents](docs/document.gif)
-### Notes & Tasks
-![Notes & Tasks](docs/notes.gif)
+### Чат и агенты
+![Чат и агенты](docs/chat.gif)
+### Глубокое исследование
+![Глубокое исследование](docs/research.gif)
+### Сравнение
+![Сравнение](docs/compare.gif)
+### Документы
+![Документы](docs/document.gif)
+### Заметки и задачи
+![Заметки и задачи](docs/notes.gif)
 
 </details>
 
-## Quick Start
+## Быстрый старт
 
-Defaults work out of the box: clone, run, then configure models/search/email
-inside **Settings**. Only edit `.env` for deployment-level overrides like
-`APP_BIND`, `APP_PORT`, `AUTH_ENABLED`, `DATABASE_URL`, or a pre-seeded admin password.
+Настройки по умолчанию работают сразу: клонируйте, запустите, затем настройте модели, поиск и почту в разделе **Настройки**. `.env` редактируйте только для параметров уровня развёртывания: `APP_BIND`, `APP_PORT`, `AUTH_ENABLED`, `DATABASE_URL` или предустановленный пароль администратора.
 
-On first setup, Odysseus creates an admin account (`admin` unless
-`ODYSSEUS_ADMIN_USER` is set) and prints a temporary password in the terminal.
-For Docker installs, the same line is in `docker compose logs odysseus`.
-Use that for the first login, then change it in **Settings**.
+При первом запуске Одиссея создаёт учётную запись администратора (`admin`, если не задан `ODYSSEUS_ADMIN_USER`) и выводит временный пароль в терминал. При Docker-установке та же строка будет в `docker compose logs odysseus`. Используйте его для первого входа, затем смените в **Настройках**.
 
-Contributing? See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, and
-pull request guidelines.
+Хотите участвовать в разработке? Смотрите [CONTRIBUTING.md](CONTRIBUTING.md) — инструкции по настройке, тестированию и оформлению pull request.
 
-### Docker (recommended)
+### Docker (рекомендуется)
 ```bash
-git clone https://github.com/pewdiepie-archdaemon/odysseus.git
+git clone https://github.com/neuronovo-X/odysseus.git
 cd odysseus
-cp .env.example .env       # optional, but recommended for explicit defaults
+cp .env.example .env       # необязательно, но рекомендуется для явных дефолтов
 docker compose up -d --build
 ```
-Open `http://localhost:7000` when the containers are healthy. Docker Compose
-binds the web UI to `127.0.0.1` by default. If the port is taken, set
-`APP_PORT=7001` in `.env` and recreate the container. Set `APP_BIND=0.0.0.0`
-only when you intentionally want LAN/reverse-proxy access.
+Откройте `http://localhost:7000` когда контейнеры перейдут в статус healthy. Docker Compose по умолчанию привязывает веб-интерфейс к `127.0.0.1`. Если порт занят, установите `APP_PORT=7001` в `.env` и пересоздайте контейнер. `APP_BIND=0.0.0.0` — только если намеренно нужен доступ из локальной сети или через обратный прокси.
 
-### Native Linux / macOS
+### Linux / macOS (нативно)
 ```bash
-git clone https://github.com/pewdiepie-archdaemon/odysseus.git
+git clone https://github.com/neuronovo-X/odysseus.git
 cd odysseus
 python3 -m venv venv
 source venv/bin/activate
@@ -79,150 +70,117 @@ pip install -r requirements.txt
 python setup.py
 python -m uvicorn app:app --host 127.0.0.1 --port 7000
 ```
-Requirements: Python 3.11+. Cookbook also needs `tmux` for background model
-downloads and serves. The app itself is lightweight; local model serving is the
-heavy part and depends on the model, runtime, GPU, and VRAM, so small hosts can
-connect to API or remote model servers instead. Use `--host 0.0.0.0` only when
-you intentionally want LAN/reverse-proxy access.
+Требования: Python 3.11+. Для Каталога моделей нужен `tmux` — фоновая загрузка и запуск. Само приложение лёгкое; тяжёлая часть — локальный запуск моделей; небольшие машины могут подключаться к API или удалённым серверам. `--host 0.0.0.0` — только при намеренном открытии LAN/прокси-доступа.
 
 ### Apple Silicon
-Docker on macOS cannot use the Metal GPU. For GPU-accelerated Cookbook on an
-M-series Mac, run Odysseus natively:
+Docker на macOS не может использовать Metal GPU. Для GPU-ускоренного Каталога моделей на Mac M-серии запускайте нативно:
 
 ```bash
-git clone https://github.com/pewdiepie-archdaemon/odysseus.git
+git clone https://github.com/neuronovo-X/odysseus.git
 cd odysseus
 ./start-macos.sh
 ```
 
-It launches at `http://127.0.0.1:7860`. To expose it to your phone over a trusted LAN/VPN such as Tailscale, bind all interfaces:
+Запускается на `http://127.0.0.1:7860`. Чтобы открыть доступ с телефона по доверенной локальной сети / VPN (например, Tailscale):
 
 ```bash
 ODYSSEUS_HOST=0.0.0.0 ./start-macos.sh
-# then open http://<tailscale-ip>:7860
+# затем откройте http://<tailscale-ip>:7860
 ```
 
-The script also reads `.env` at startup, so `APP_BIND=0.0.0.0` and `APP_PORT`
-set there are picked up automatically without a command-line override each run.
+Скрипт читает `.env` при запуске, поэтому `APP_BIND=0.0.0.0` и `APP_PORT` из него подхватываются автоматически.
 
-Keep `AUTH_ENABLED=true` (the default) before binding outside loopback. Do not
-expose this port directly to the public internet. To build a clickable app wrapper:
+Держите `AUTH_ENABLED=true` (по умолчанию) до привязки вне loopback. Не открывайте порт напрямую в публичный интернет. Для сборки приложения-обёртки:
 
 ```bash
 ./build-macos-app.sh
 ```
 
 <details>
-<summary>Cookbook, GPU, Ollama, and troubleshooting notes</summary>
+<summary>Каталог моделей, GPU, Ollama и устранение проблем</summary>
 
-**Docker bundled services.** Compose starts Odysseus, ChromaDB, SearXNG, and
-ntfy. Odysseus and the bundled service ports bind to `127.0.0.1` by default, so
-they are reachable from the host but not exposed to your LAN/public internet
-unless you opt in.
+**Встроенные сервисы Docker.** Compose запускает Одиссею, ChromaDB, SearXNG и ntfy. По умолчанию Одиссея и сервисы привязаны к `127.0.0.1` — доступны с хоста, но не из локальной сети / интернета без явного включения.
 
-**Cookbook storage in Docker.** Downloads live in `./data/huggingface`
-(`~/.cache/huggingface` in the container). Cookbook-installed Python CLIs and
-serve engines live in `./data/local` (`~/.local` in the container), so they
-survive container recreation.
+**Хранилище Каталога в Docker.** Загруженные модели хранятся в `./data/huggingface` (`~/.cache/huggingface` внутри контейнера). CLI и движки запуска — в `./data/local` (`~/.local`), и переживают пересоздание контейнера.
 
-**Remote servers.** In **Cookbook -> Settings -> Servers**, generate the
-Odysseus SSH key and add the public key to the remote server's
-`~/.ssh/authorized_keys`. From the host you can also run:
+**Удалённые серверы.** В **Каталог → Настройки → Серверы** сгенерируйте SSH-ключ Одиссеи и добавьте публичный ключ в `~/.ssh/authorized_keys` удалённого сервера. С хоста можно также выполнить:
 
 ```bash
 ssh-copy-id -i data/ssh/id_ed25519.pub user@server
 ```
 
-**Docker GPU overlays.** CPU-only users can skip this section. Cookbook can
-only detect GPUs that Docker exposes to the container — if the host runtime or
-device passthrough is not configured, Cookbook sees the iGPU, another card, or
-CPU instead of your intended GPU.
+**GPU-оверлеи в Docker.** Пользователи CPU могут пропустить этот раздел. Каталог видит только те GPU, которые Docker пробрасывает в контейнер — если runtime хоста или passthrough не настроены, Каталог увидит iGPU, другую карту или CPU вместо нужной.
 
-For NVIDIA, `scripts/check-docker-gpu.sh` diagnoses GPU passthrough and can
-optionally install the host runtime or update `.env`.
+Для NVIDIA скрипт `scripts/check-docker-gpu.sh` диагностирует passthrough и опционально устанавливает runtime или обновляет `.env`.
 
 ```bash
-# Read-only diagnostic (default — installs nothing, never edits .env):
+# Только диагностика (ничего не устанавливает, .env не меняет):
 scripts/check-docker-gpu.sh
 
-# Print OS-specific install commands without running them:
+# Вывести команды установки без выполнения:
 scripts/check-docker-gpu.sh --print-install-commands
 
-# Install NVIDIA Container Toolkit on Ubuntu/Debian (requires sudo):
+# Установить NVIDIA Container Toolkit на Ubuntu/Debian (требует sudo):
 scripts/check-docker-gpu.sh --install-nvidia-toolkit
 
-# Write COMPOSE_FILE to .env (only when GPU passthrough is confirmed working):
+# Записать COMPOSE_FILE в .env (только при подтверждённом GPU passthrough):
 scripts/check-docker-gpu.sh --enable-nvidia-overlay
 
-# Full assisted setup — install toolkit, then enable overlay if passthrough works:
+# Полная автонастройка — установить toolkit, затем включить оверлей:
 scripts/check-docker-gpu.sh --install-nvidia-toolkit --enable-nvidia-overlay
 ```
 
-Safety notes:
-- The app never installs host GPU runtime automatically.
-- The app never edits `.env` automatically.
-- `.env` is only modified when `--enable-nvidia-overlay` is explicitly passed,
-  and only after GPU passthrough succeeds. `--yes` skips prompts but does not
-  bypass the passthrough gate.
-- `.env.bak.*` backups created by `--enable-nvidia-overlay` are ignored by
-  Git and the Docker build context.
+Примечания по безопасности:
+- Приложение никогда не устанавливает GPU runtime на хосте автоматически.
+- Приложение никогда не редактирует `.env` автоматически.
+- `.env` изменяется только при явной передаче `--enable-nvidia-overlay` и только после успешной проверки passthrough. `--yes` пропускает подтверждения, но не обходит проверку.
+- Резервные копии `.env.bak.*` игнорируются Git и Docker build context.
 
-To enable manually without the script, add this to `.env`:
+Включить вручную без скрипта — добавьте в `.env`:
 
 ```bash
 COMPOSE_FILE=docker-compose.yml:docker/gpu.nvidia.yml
 ```
 
-**AMD / ROCm.** AMD setup is read-only diagnostic plus manual `.env` edit. Run:
+**AMD / ROCm.** Диагностика только для чтения, `.env` — вручную. Выполните:
 
 ```bash
 scripts/check-docker-amd-gpu.sh
 ```
 
-Then add the reported values to `.env`, replacing `RENDER_GID` with your host's
-numeric render group id:
+Затем добавьте в `.env`, заменив `RENDER_GID` на числовой id группы render вашего хоста:
 
 ```bash
 COMPOSE_FILE=docker-compose.yml:docker/gpu.amd.yml
 RENDER_GID=989
 ```
 
-For NVIDIA/AMD GPU support, also read the comments in the selected overlay file: docker/gpu.nvidia.yml or docker/gpu.amd.yml.
+Для поддержки NVIDIA/AMD GPU прочтите также комментарии в выбранном оверлей-файле: `docker/gpu.nvidia.yml` или `docker/gpu.amd.yml`.
 
-Verify after enabling either overlay:
+Проверка после включения оверлея:
 
 ```bash
 docker compose exec odysseus nvidia-smi -L   # NVIDIA
 docker compose exec odysseus sh -lc 'test -e /dev/kfd && test -d /dev/dri && ls -l /dev/kfd /dev/dri/renderD*'  # AMD
 ```
 
-> **GPU passthrough ≠ llama.cpp CUDA.** `nvidia-smi` passing inside the
-> container confirms Docker GPU access, but llama.cpp also needs `cudart` and
-> the CUDA Toolkit at runtime. If Cookbook logs show `Unable to find cudart
-> library`, `Could NOT find CUDAToolkit`, `CUDA Toolkit not found`, or
-> tensors/layers assigned to CPU, that is a Cookbook/llama.cpp build issue —
-> not a Docker passthrough failure. Re-install the serve engine via
-> **Cookbook → Dependencies** to get a CUDA-enabled build.
+> **GPU passthrough ≠ CUDA в llama.cpp.** То, что `nvidia-smi` работает внутри контейнера, подтверждает доступ Docker к GPU, но llama.cpp также требует `cudart` и CUDA Toolkit в runtime. Если в логах Каталога видно `Unable to find cudart library`, `Could NOT find CUDAToolkit` или тензоры/слои на CPU — это проблема сборки Каталога/llama.cpp, а не passthrough. Переустановите движок через **Каталог → Зависимости**, чтобы получить сборку с CUDA.
 >
-> The same split applies to AMD/ROCm: seeing `/dev/kfd` and `/dev/dri` inside
-> the container confirms device passthrough, not ROCm userspace or a
-> ROCm-enabled vLLM/llama.cpp build. `rocm-smi` and `rocminfo` are not expected
-> inside the slim Odysseus image.
+> То же самое для AMD/ROCm: наличие `/dev/kfd` и `/dev/dri` внутри контейнера подтверждает проброс устройств, но не userspace ROCm и не сборку vLLM/llama.cpp с ROCm. `rocm-smi` и `rocminfo` не ожидаются внутри образа Одиссеи.
 
-**Ollama with Docker.** If Ollama runs on the host, add this endpoint in
-Settings:
+**Ollama с Docker.** Если Ollama запущена на хосте, добавьте этот эндпоинт в Настройках:
 
 ```text
 http://host.docker.internal:11434/v1
 ```
 
-Ollama must listen outside its own loopback interface:
+Ollama должна слушать вне своего loopback-интерфейса:
 
 ```bash
 OLLAMA_HOST=0.0.0.0:11434 ollama serve
 ```
 
-**Useful checks.**
+**Полезные команды.**
 
 ```bash
 docker compose ps
@@ -230,28 +188,24 @@ docker compose logs --tail=120 odysseus
 docker compose logs odysseus | grep -E 'ChromaDB|MemoryVectorStore|DEGRADED'
 ```
 
-**macOS details.** `start-macos.sh` installs Homebrew deps, creates the venv,
-runs setup, and starts uvicorn on port `7860` because AirPlay often holds
-`7000`. It uses llama.cpp/Ollama for Metal. vLLM/SGLang are CUDA/ROCm-only and
-do not run on macOS. MLX-only models are not served by Odysseus.
+**macOS — детали.** `start-macos.sh` устанавливает зависимости Homebrew, создаёт venv, запускает setup и стартует uvicorn на порту `7860` (AirPlay часто занимает `7000`). Использует llama.cpp/Ollama для Metal. vLLM/SGLang требуют CUDA/ROCm и не работают на macOS. MLX-only модели Одиссеей не обслуживаются.
 
 </details>
 
-### Native Windows
+### Windows (нативно)
 
-**One-command launcher** (creates the venv, installs deps, runs setup, starts the
-server; safe to re-run):
+**Однострочный запуск** (создаёт venv, устанавливает зависимости, запускает setup и сервер; можно запускать повторно):
 
 ```powershell
-git clone https://github.com/pewdiepie-archdaemon/odysseus.git
+git clone https://github.com/neuronovo-X/odysseus.git
 cd odysseus
 powershell -ExecutionPolicy Bypass -File .\launch-windows.ps1
 ```
 
-Or do it by hand:
+Или вручную:
 
 ```powershell
-git clone https://github.com/pewdiepie-archdaemon/odysseus.git
+git clone https://github.com/neuronovo-X/odysseus.git
 cd odysseus
 py -3.11 -m venv venv
 venv\Scripts\Activate.ps1
@@ -260,123 +214,100 @@ python setup.py
 python -m uvicorn app:app --host 127.0.0.1 --port 7000
 ```
 
-If `python` points at an older interpreter, use `py -3.12` (or another installed
-3.11+ version) for the venv step.
+Если `python` указывает на старый интерпретатор, используйте `py -3.12` (или другую установленную версию 3.11+) для создания venv.
 
-**Requirements:** Python 3.11+. The core app (chat, agent, memory, documents,
-email, calendar, deep research) runs fully native. For full **Cookbook** background
-model downloads and the agent shell tool, also install
-[Git for Windows](https://git-scm.com/download/win) (provides `bash.exe`).
-Local GPU *serving* of vLLM/SGLang needs Linux/WSL2; for a local model on Windows,
-[Ollama](https://ollama.com/download) is the easiest path — point Odysseus at
-`http://localhost:11434/v1` in Settings.
+**Требования:** Python 3.11+. Основное приложение (чат, агент, память, документы, почта, календарь, глубокое исследование) работает полностью нативно. Для фоновых загрузок в **Каталоге** и инструмента shell-агента установите также [Git for Windows](https://git-scm.com/download/win) (предоставляет `bash.exe`). Локальный GPU-запуск vLLM/SGLang требует Linux/WSL2; для локальной модели на Windows проще всего [Ollama](https://ollama.com/download) — укажите `http://localhost:11434/v1` в Настройках.
 
-Open `http://localhost:7000`, log in with the generated admin password,
-and configure everything else inside **Settings**.
+Откройте `http://localhost:7000`, войдите с временным паролем администратора и настройте всё остальное в **Настройках**.
 
-## Security Notes
-Odysseus is a self-hosted workspace with powerful local tools: shell access, file uploads, model downloads, web research, email/calendar integrations, and API tokens. Treat it like an admin console.
+## Безопасность
+Одиссея — это self-hosted рабочее пространство с мощными локальными инструментами: доступ к оболочке, загрузка файлов, скачивание моделей, веб-поиск, интеграции почты/календаря, API-токены. Обращайтесь с ней как с консолью администратора.
 
-- Keep `AUTH_ENABLED=true` for any network-accessible deployment.
-- Keep `LOCALHOST_BYPASS=false` outside local development.
-- Use `SECURE_COOKIES=true` when Odysseus is served through HTTPS by a trusted reverse proxy or private access gateway.
-- Do not expose it directly to the public internet without HTTPS and a trusted reverse proxy or private access layer.
-- Keep `.env`, `data/`, `logs/`, databases, uploads, generated media, backups, auth/session files, API keys, and model/provider tokens out of Git and private shares. They are ignored by default.
-- Review `data/auth.json` after first boot: disable open signup unless you intentionally want it, make only your own account admin, and keep demo/test accounts non-admin.
-- Non-admin users do not get shell/Python/file read/write by default, and admin-only routes/tools such as MCP management, API tokens, webhooks, model/cookbook serving, backup/vault, and app settings are admin-gated. Other features are controlled by per-user privileges, so review each user's privileges before exposing a deployment.
-- Rotate any API keys or tokens that were ever pasted into a shared chat, demo, screenshot, or log.
-- If you enable API tokens or webhooks, create separate tokens per integration and delete unused ones.
-- Prefer binding manual development runs to `127.0.0.1`; bind to `0.0.0.0` only when you intentionally want LAN/reverse-proxy access.
-- Keep ChromaDB, SearXNG, ntfy, Ollama, vLLM, llama.cpp, databases, and raw model/provider APIs internal-only. Expose only the authenticated Odysseus web/API entrypoint through your trusted proxy or private access layer.
-- Before publishing a fork, run `git status --short` and confirm no private files from `.env`, `data/`, `logs/`, uploads, backups, or local databases are staged.
+- Держите `AUTH_ENABLED=true` для любого сетевого развёртывания.
+- Держите `LOCALHOST_BYPASS=false` вне локальной разработки.
+- Используйте `SECURE_COOKIES=true`, когда Одиссея обслуживается через HTTPS доверенным обратным прокси или шлюзом.
+- Не открывайте доступ напрямую в публичный интернет без HTTPS и доверенного прокси.
+- Держите `.env`, `data/`, `logs/`, базы данных, загрузки, медиафайлы, резервные копии, файлы auth/сессий, API-ключи и токены провайдеров вне Git и публичных ресурсов. По умолчанию они игнорируются.
+- Проверьте `data/auth.json` после первого запуска: отключите открытую регистрацию, если она не нужна; сделайте администратором только свой аккаунт; держите демо/тестовые аккаунты без прав администратора.
+- Не-администраторы по умолчанию не имеют доступа к оболочке/Python/файлам, а маршруты и инструменты только для администраторов (управление MCP, API-токены, вебхуки, запуск моделей, резервное копирование, настройки приложения) требуют прав. Остальные функции контролируются привилегиями пользователя — проверьте их перед открытием доступа.
+- Ротируйте API-ключи и токены, которые когда-либо попадали в публичный чат, демо, скриншот или лог.
+- При использовании API-токенов или вебхуков создавайте отдельный токен для каждой интеграции и удаляйте неиспользуемые.
+- Для ручного запуска разработки используйте `127.0.0.1`; `0.0.0.0` — только при намеренном открытии LAN/прокси-доступа.
+- Держите ChromaDB, SearXNG, ntfy, Ollama, vLLM, llama.cpp, базы данных и API моделей/провайдеров только для внутреннего использования. Через доверенный прокси или шлюз открывайте только аутентифицированный веб/API-эндпоинт Одиссеи.
+- Перед публикацией форка выполните `git status --short` и убедитесь, что файлы из `.env`, `data/`, `logs/`, загрузки, резервные копии и локальные базы данных не попали в индекс.
 
-### Private or proxied deployments
-Odysseus serves plain HTTP on its app port. Docker Compose binds Odysseus and the bundled services to `127.0.0.1` by default, so a typical production/private setup is:
+### Частное или проксированное развёртывание
+Одиссея отдаёт простой HTTP на своём порту. Docker Compose по умолчанию привязывает Одиссею и сервисы к `127.0.0.1`, поэтому типовая схема продакшена:
 
-1. Keep Odysseus on localhost, for example `127.0.0.1:7000`.
-2. Terminate HTTPS at a trusted reverse proxy or private access gateway.
-3. Put the authenticated Odysseus web/API entrypoint behind that layer.
-4. Keep raw service and model ports internal-only.
+1. Держите Одиссею на localhost, например `127.0.0.1:7000`.
+2. Завершайте HTTPS на доверенном обратном прокси или шлюзе.
+3. Разместите аутентифицированный веб/API-эндпоинт Одиссеи за этим слоем.
+4. Держите порты сервисов и моделей только для внутреннего использования.
 
-Cloudflare Access, Tailscale, Caddy, nginx, and Traefik can all fit this pattern; none are required by Odysseus. If your access layer reaches Odysseus on the same host, proxy to `http://127.0.0.1:7000` and keep `AUTH_ENABLED=true`, `LOCALHOST_BYPASS=false`, and `SECURE_COOKIES=true`.
+Cloudflare Access, Tailscale, Caddy, nginx, Traefik — все подходят под эту схему; ни один из них не обязателен. Если ваш шлюз достигает Одиссеи на том же хосте, проксируйте на `http://127.0.0.1:7000` и держите `AUTH_ENABLED=true`, `LOCALHOST_BYPASS=false` и `SECURE_COOKIES=true`.
 
-Common internal-only ports from the default docs/compose setup:
+Стандартные внутренние порты (конфигурация по умолчанию):
 
-| Port | Service |
+| Порт | Сервис |
 |---|---|
-| `7000` | Odysseus raw app port |
+| `7000` | Одиссея (app port) |
 | `8080` | SearXNG |
 | `8091` | ntfy |
-| `8100` | ChromaDB host port for manual/compose access |
+| `8100` | ChromaDB (хост, ручной/compose-доступ) |
 | `11434` | Ollama |
-| `8000-8020` | Common local model/provider APIs |
+| `8000–8020` | Типовые API локальных моделей |
 
-## Contributing
-Help is welcome. The best entry points are fresh-install testing, provider setup
-bugs, mobile/editor polish, docs, and small focused refactors. See
-[ROADMAP.md](ROADMAP.md) for the current help-wanted list.
+## Участие в разработке
+Помощь приветствуется. Лучшие точки входа: тестирование чистой установки, баги подключения провайдеров, полировка мобильного/редактора, документация и небольшие сфокусированные рефакторинги. Актуальный список задач — в [ROADMAP.md](ROADMAP.md).
 
-## Configuration
-Most setup is done inside the app with `/setup` or **Settings**. Use `.env`
-for deployment-level defaults and secrets you want present before first boot.
-Key settings:
+## Конфигурация
+Большинство настроек выполняется внутри приложения через `/setup` или **Настройки**. Используйте `.env` для параметров уровня развёртывания и секретов, нужных до первого запуска.
 
-| Variable | Default | Description |
+| Переменная | По умолчанию | Описание |
 |---|---|---|
-| `LLM_HOST` | `localhost` | Your LLM server (e.g. `llm-host.local:8000`) |
-| `LLM_HOSTS` | -- | Comma-separated list for model discovery |
-| `OPENAI_API_KEY` | -- | Optional OpenAI key. Prefer adding providers in the app unless pre-seeding. |
-| `SEARXNG_INSTANCE` | `http://localhost:8080` | SearXNG URL. Docker overrides this to `http://searxng:8080`. |
-| `SEARXNG_SECRET` | generated on first Docker boot | Optional SearXNG cookie/CSRF secret. Leave blank unless you need to pin it. |
-| `APP_BIND` | `127.0.0.1` | Docker Compose host bind address for the web UI. Use `0.0.0.0` only for intentional LAN/reverse-proxy access. |
-| `APP_PORT` | `7000` | Docker Compose host port for the web UI. |
-| `AUTH_ENABLED` | `true` | Enable/disable login |
-| `LOCALHOST_BYPASS` | `false` | Development-only auth bypass for loopback requests. Keep false for shared/network deployments. |
-| `SECURE_COOKIES` | `false` | Set true when serving Odysseus through HTTPS at a trusted proxy or private access gateway. |
-| `DATABASE_URL` | `sqlite:///./data/app.db` | Database connection string |
-| `CHROMADB_HOST` | `localhost` | ChromaDB host for vector memory. Docker overrides this to `chromadb`. |
-| `CHROMADB_PORT` | `8100` | ChromaDB port for manual host runs. Docker overrides this to `8000`. |
-| `EMBEDDING_URL` | -- | OpenAI-compatible embeddings endpoint |
+| `LLM_HOST` | `localhost` | Адрес LLM-сервера (например `llm-host.local:8000`) |
+| `LLM_HOSTS` | — | Список через запятую для обнаружения моделей |
+| `OPENAI_API_KEY` | — | Опциональный ключ OpenAI. Предпочтительно добавлять провайдеров в приложении. |
+| `SEARXNG_INSTANCE` | `http://localhost:8080` | URL SearXNG. Docker подставляет `http://searxng:8080`. |
+| `SEARXNG_SECRET` | генерируется при первом Docker-запуске | Опциональный секрет cookie/CSRF для SearXNG. |
+| `APP_BIND` | `127.0.0.1` | Адрес привязки Docker Compose для веб-интерфейса. |
+| `APP_PORT` | `7000` | Порт Docker Compose для веб-интерфейса. |
+| `AUTH_ENABLED` | `true` | Включить/отключить аутентификацию |
+| `LOCALHOST_BYPASS` | `false` | Обход аутентификации для loopback (только разработка). |
+| `SECURE_COOKIES` | `false` | `true` при HTTPS через доверенный прокси. |
+| `DATABASE_URL` | `sqlite:///./data/app.db` | Строка подключения к базе данных |
+| `CHROMADB_HOST` | `localhost` | Хост ChromaDB. Docker подставляет `chromadb`. |
+| `CHROMADB_PORT` | `8100` | Порт ChromaDB для ручного запуска. Docker подставляет `8000`. |
+| `EMBEDDING_URL` | — | OpenAI-совместимый эндпоинт эмбеддингов |
 
-### Built-in MCP servers (optional setup)
+### Встроенные MCP-серверы (опциональная настройка)
 
-Odysseus auto-registers a few built-in MCP servers at startup. The npx-based ones (currently the browser server, `@playwright/mcp`) only start when their npm package is already in the local npx cache. If a package isn't cached, that server is skipped with a startup log message explaining what to do, so a fresh install does not block on a multi-minute npm download or hang if Playwright system deps are missing.
+Одиссея автоматически регистрирует несколько встроенных MCP-серверов при запуске. Серверы на базе npx (в частности, браузерный сервер `@playwright/mcp`) стартуют только если пакет уже есть в кэше npx. Если пакета нет — сервер пропускается с пояснительным сообщением в логе, так что свежая установка не зависает из-за загрузки npm.
 
-To enable the browser MCP (page navigation, screenshots, vision), run once:
+Чтобы включить браузерный MCP (навигация, скриншоты, vision), выполните однократно:
 
 ```bash
 npx -y @playwright/mcp@latest --version
 ```
 
-That installs `@playwright/mcp` plus Playwright (~300MB total). Restart Odysseus and the server will register at startup.
+Это установит `@playwright/mcp` и Playwright (~300 МБ суммарно). Перезапустите Одиссею — сервер зарегистрируется автоматически.
 
-## Architecture
+## Архитектура
 ```
-app.py                   # FastAPI entry point
-core/      auth, database, middleware, constants
+app.py                   # точка входа FastAPI
+core/      авторизация, база данных, middleware, константы
 src/       llm_core, agent_loop, agent_tools, chat_processor, search/
-routes/    chat, session, document, memory, model … endpoints
-services/  docs, memory, search, hwfit (Cookbook) …
-static/    index.html + app.js + style.css + js/ (modular front-end)
-docs/      landing page (index.html) + preview clips
+routes/    chat, session, document, memory, model … эндпоинты
+services/  docs, memory, search, hwfit (Каталог) …
+static/    index.html + app.js + style.css + js/ (модульный фронтенд)
+docs/      лендинг (index.html) + превью-записи
 ```
 
-## Data
-All user data lives in `data/` (gitignored): `app.db` (sessions, messages, documents),
-`memory.json`, `presets.json`, `uploads/`, `personal_docs/`, `chroma/`, `settings.json`.
+## Данные
+Все пользовательские данные хранятся в `data/` (в .gitignore): `app.db` (сессии, сообщения, документы), `memory.json`, `presets.json`, `uploads/`, `personal_docs/`, `chroma/`, `settings.json`.
 
-## Star History
-
-<a href="https://www.star-history.com/?repos=pewdiepie-archdaemon%2Fodysseus&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=pewdiepie-archdaemon/odysseus&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=pewdiepie-archdaemon/odysseus&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=pewdiepie-archdaemon/odysseus&type=date&legend=top-left" />
- </picture>
-</a>
-
-## License
-MIT -- see [LICENSE](LICENSE) and [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
+## Лицензия
+MIT — см. [LICENSE](LICENSE) и [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
 
 ```
                                   |
@@ -389,6 +320,6 @@ MIT -- see [LICENSE](LICENSE) and [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).
              _____|____|____|_____\\\__
              \                       /
        ~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~
-               ~^~  all aboard!  ~^~
+               ~^~  все на борт!  ~^~
        ~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~~^~^~
 ```
