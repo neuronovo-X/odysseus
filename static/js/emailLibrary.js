@@ -16,6 +16,7 @@ import {
   _TALON_WROTE, _TALON_FROM, _TALON_SENT, _TALON_SUBJ, _TALON_TO,
   _TALON_ORIG_RE, _SIG_BLOAT_MIN_CHARS,
 } from './emailLibrary/utils.js';
+import { t } from './i18n.js';
 import {
   _looksLikeSignature, _harvestAttribution, _extractTurnMetaFromBlockquote,
   _foldSummary, _extractQuoteMeta, _peelSigNameLine, _isBloatedSig,
@@ -566,7 +567,7 @@ function _openSettingsTab(tab) {
 
 function _emailSetupHintHtml() {
   return '<div style="margin-top:6px;opacity:0.72;font-size:11px;">' +
-    'Setup: <a href="#" data-open-settings="integrations" style="color:var(--accent,var(--red));text-decoration:underline;">Settings &rsaquo; Integrations</a>' +
+    t('email.lib.setup_hint') +
     '</div>';
 }
 
@@ -776,7 +777,7 @@ export function openEmailLibrary(opts = {}) {
             <rect x="2" y="4" width="20" height="16" rx="2"/>
             <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
           </svg>
-          Email
+          ${t('email.title')}
           <span id="email-lib-unread-badge" class="email-lib-unread-badge" role="button" tabindex="0" title="Show unread emails" style="display:none"></span>
           <span id="email-lib-stats" class="memory-count" style="font-size:0.6em;opacity:0.6;font-weight:normal;margin-left:8px;position:relative;top:-2px"></span>
         </h4>
@@ -786,48 +787,48 @@ export function openEmailLibrary(opts = {}) {
       </div>
       <div class="modal-body" style="display:flex;flex-direction:column;gap:10px;overflow:hidden;">
         <div class="admin-card" style="flex:1;flex-direction:column;display:flex;overflow:hidden;">
-          <p class="memory-desc doclib-desc">All emails. Click to open as a document.</p>
+          <p class="memory-desc doclib-desc">${t('email.lib.desc')}</p>
           <div class="email-accounts-row">
             <div id="email-lib-accounts" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;"></div>
             <button class="memory-toolbar-btn email-compose-jiggle" id="email-lib-compose-btn">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              New
+              ${t('email.lib.new')}
             </button>
           </div>
           <div class="memory-toolbar">
             <div class="memory-category-filters">
               <select class="memory-sort-select" id="email-lib-folder" style="flex:1;min-width:0;text-overflow:ellipsis;">
-                <option value="INBOX">Inbox</option>
+                <option value="INBOX">${t('email.lib.folder_inbox')}</option>
               </select>
               <select class="memory-sort-select" id="email-lib-filter" style="flex:1;min-width:0;">
-                <option value="all">All</option>
-                <option value="unread">Unread</option>
-                <option value="favorites">Favorites</option>
-                <option value="undone">Undone</option>
-                <option value="reminders">Reminders</option>
-                <option value="unanswered">Unanswered</option>
-                <option value="pending_30d">Pending · 30d</option>
-                <option value="stale_30d">Stale · &gt;30d</option>
-                <optgroup label="Tags">
-                  <option value="tag:urgent">Urgent</option>
-                  <option value="tag:reply-soon">Reply soon</option>
-                  <option value="tag:spam">Spam</option>
-                  <option value="tag:newsletter">Newsletter</option>
-                  <option value="tag:marketing">Marketing</option>
+                <option value="all">${t('email.lib.filter_all')}</option>
+                <option value="unread">${t('email.lib.filter_unread')}</option>
+                <option value="favorites">${t('email.lib.filter_favorites')}</option>
+                <option value="undone">${t('email.lib.filter_undone')}</option>
+                <option value="reminders">${t('email.lib.filter_reminders')}</option>
+                <option value="unanswered">${t('email.lib.filter_unanswered')}</option>
+                <option value="pending_30d">${t('email.lib.filter_pending_30d')}</option>
+                <option value="stale_30d">${t('email.lib.filter_stale_30d')}</option>
+                <optgroup label="${t('email.lib.tags')}">
+                  <option value="tag:urgent">${t('email.lib.tag_urgent')}</option>
+                  <option value="tag:reply-soon">${t('email.lib.tag_reply_soon')}</option>
+                  <option value="tag:spam">${t('email.lib.tag_spam')}</option>
+                  <option value="tag:newsletter">${t('email.lib.tag_newsletter')}</option>
+                  <option value="tag:marketing">${t('email.lib.tag_marketing')}</option>
                 </optgroup>
               </select>
-              <button class="memory-toolbar-btn email-filter-select-btn" id="email-lib-select-btn">Select</button>
-              <button class="memory-toolbar-btn email-filter-refresh-btn" id="email-lib-refresh-btn" title="Refresh">
+              <button class="memory-toolbar-btn email-filter-select-btn" id="email-lib-select-btn">${t('email.lib.select')}</button>
+              <button class="memory-toolbar-btn email-filter-refresh-btn" id="email-lib-refresh-btn" title="${t('email.lib.refresh')}">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
               </button>
               <button class="memory-toolbar-btn email-reminders-clear-btn hidden" id="email-reminders-clear-btn" title="Permanently delete Odysseus reminder emails">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
-                Clear
+                ${t('email.lib.clear')}
               </button>
             </div>
             <div class="email-search-row" style="display:flex;gap:6px;align-items:flex-start;">
             <div class="email-search-wrap" style="position:relative;flex:1;min-width:140px;">
-              <input type="text" id="email-lib-search" placeholder="Search emails\u2026" class="memory-search-input" style="width:100%;padding-right:96px;" />
+              <input type="text" id="email-lib-search" placeholder="${t('email.lib.search')}" class="memory-search-input" style="width:100%;padding-right:96px;" />
               <button class="memory-toolbar-btn email-undone-toggle email-undone-toggle-inline" id="email-undone-btn" title="Show only emails not marked as done (undone)">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </button>
@@ -841,10 +842,10 @@ export function openEmailLibrary(opts = {}) {
             </div>
           </div>
           <div id="email-lib-bulk" class="memory-bulk-bar hidden" style="margin-bottom:5px;">
-            <label class="memory-bulk-check-all" style="position:relative;top:2px;"><input type="checkbox" id="email-lib-select-all"> All</label>
-            <span id="email-lib-selected-count" style="position:relative;top:1px;">0 Selected</span>
-            <button class="memory-toolbar-btn" id="email-lib-bulk-actions" style="position:relative;top:-2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Actions <span style="opacity:0.55;font-size:9px;">▼</span></button>
-            <button class="memory-toolbar-btn" id="email-lib-bulk-delete" style="position:relative;top:-2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Delete</button>
+            <label class="memory-bulk-check-all" style="position:relative;top:2px;"><input type="checkbox" id="email-lib-select-all"> ${t('email.lib.bulk_all')}</label>
+            <span id="email-lib-selected-count" style="position:relative;top:1px;">${t('email.lib.selected_count').replace('{n}', '0')}</span>
+            <button class="memory-toolbar-btn" id="email-lib-bulk-actions" style="position:relative;top:-2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>${t('email.lib.actions')} <span style="opacity:0.55;font-size:9px;">▼</span></button>
+            <button class="memory-toolbar-btn" id="email-lib-bulk-delete" style="position:relative;top:-2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>${t('email.delete')}</button>
             <button class="memory-toolbar-btn" id="email-lib-bulk-cancel" title="Cancel (Esc)" style="margin-left:4px;padding:3px 6px;position:relative;top:-2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           <div id="email-lib-grid" class="doclib-grid"></div>
@@ -1306,7 +1307,7 @@ function _renderAccountsStrip() {
   strip.style.display = 'flex';
   const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const allActive = !state._libAccountId ? ' active' : '';
-  let html = `<button class="memory-toolbar-btn gallery-chip${allActive}" data-acc-id="">All (default)</button>`;
+  let html = `<button class="memory-toolbar-btn gallery-chip${allActive}" data-acc-id="">${t('email.lib.all_default')}</button>`;
   for (const a of state._libAccounts) {
     const active = state._libAccountId === a.id ? ' active' : '';
     const label = a.name || a.from_address || a.imap_user || 'account';
@@ -1586,7 +1587,7 @@ function _renderEmailLoading(grid) {
   } catch (_) {}
   const label = document.createElement('div');
   label.className = 'email-loading-label';
-  label.textContent = 'Loading emails';
+  label.textContent = t('email.lib.loading');
   wrap.appendChild(label);
   grid.appendChild(wrap);
   return sp;
@@ -1728,7 +1729,7 @@ async function _loadScheduled(grid, sp) {
   if (stats) stats.textContent = `${items.length} scheduled`;
 
   if (items.length === 0) {
-    grid.innerHTML = '<div class="email-loading">No scheduled emails</div>';
+    grid.innerHTML = '<div class="email-loading">' + t('email.lib.no_scheduled') + '</div>';
     return;
   }
 
@@ -4874,11 +4875,11 @@ function _updateBulkBar() {
   const selectBtn = document.getElementById('email-lib-select-btn');
   if (bar) bar.classList.toggle('hidden', !state._selectMode);
   if (selectBtn) {
-    selectBtn.textContent = state._selectMode ? 'Cancel' : 'Select';
+    selectBtn.textContent = state._selectMode ? t('email.lib.cancel') : t('email.lib.select');
     selectBtn.classList.toggle('active', state._selectMode);
   }
   const count = document.getElementById('email-lib-selected-count');
-  if (count) count.textContent = `${state._selectedUids.size} Selected`;
+  if (count) count.textContent = t('email.lib.selected_count').replace('{n}', String(state._selectedUids.size));
   const all = document.getElementById('email-lib-select-all');
   if (all) all.checked = state._libEmails.length > 0 && state._libEmails.every(e => state._selectedUids.has(e.uid));
   // When something's selected, brighten Actions to the same full --fg color as

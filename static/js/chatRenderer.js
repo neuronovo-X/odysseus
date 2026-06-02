@@ -8,6 +8,7 @@ import { providerLogo } from './providers.js';
 import settingsModule from './settings.js';
 import spinnerModule from './spinner.js';
 import { bindMenuDismiss } from './escMenuStack.js';
+import { t } from './i18n.js';
 
 const SEARCH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>';
 const REPORT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>';
@@ -1275,7 +1276,7 @@ export function createMsgFooter(msgElement) {
 
   // Define all available actions: { id, icon, title, className, handler }
   const allActions = [
-    { id: 'copy', icon: COPY_ICON, title: 'Copy message', cls: 'footer-copy-btn', html: true, handler(e) {
+    { id: 'copy', icon: COPY_ICON, title: t('chat.copy_message'), cls: 'footer-copy-btn', html: true, handler(e) {
       e.stopPropagation();
       const btn = e.currentTarget;
       uiModule.copyToClipboard(msgElement.dataset.raw || msgElement.querySelector('.body')?.textContent || '');
@@ -1302,7 +1303,7 @@ export function createMsgFooter(msgElement) {
       e.stopPropagation();
       if (window.chatModule?.forkFrom) window.chatModule.forkFrom(msgElement);
     }},
-    { id: 'delete', icon: '\u2715', title: 'Delete message', cls: 'msg-action-btn msg-delete-btn', handler(e) {
+    { id: 'delete', icon: '\u2715', title: t('chat.delete_message'), cls: 'msg-action-btn msg-delete-btn', handler(e) {
       e.stopPropagation();
       if (window.chatModule?.deleteMessage) window.chatModule.deleteMessage(msgElement);
     }},
@@ -1343,7 +1344,7 @@ export function createMsgFooter(msgElement) {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'msg-action-btn msg-more-btn';
     moreBtn.type = 'button';
-    moreBtn.title = 'More actions';
+    moreBtn.title = t('chat.more_actions');
     moreBtn.textContent = '\u00B7\u00B7\u00B7';
     moreBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1486,22 +1487,22 @@ export function createUserMsgFooter(msgElement) {
   actions.className = 'msg-actions';
 
   const allActions = [
-    { id: 'edit', icon: '\u270E', title: 'Edit message', cls: 'msg-action-btn', handler(e) {
+    { id: 'edit', icon: '\u270E', title: t('chat.edit_message'), cls: 'msg-action-btn', handler(e) {
       e.stopPropagation();
       if (window.chatModule?.editUserMessage) window.chatModule.editUserMessage(msgElement);
     }},
-    { id: 'delete', icon: '\u2715', title: 'Delete message', cls: 'msg-action-btn msg-delete-btn', handler(e) {
+    { id: 'delete', icon: '\u2715', title: t('chat.delete_message'), cls: 'msg-action-btn msg-delete-btn', handler(e) {
       e.stopPropagation();
       if (window.chatModule?.deleteMessage) window.chatModule.deleteMessage(msgElement);
     }},
-    { id: 'copy', icon: COPY_ICON, title: 'Copy message', cls: 'footer-copy-btn', html: true, handler(e) {
+    { id: 'copy', icon: COPY_ICON, title: t('chat.copy_message'), cls: 'footer-copy-btn', html: true, handler(e) {
       e.stopPropagation();
       const btn = e.currentTarget;
       uiModule.copyToClipboard(msgElement.querySelector('.body')?.textContent || '');
       btn.innerHTML = CHECK_ICON;
       setTimeout(() => { btn.innerHTML = COPY_ICON; }, 1500);
     }},
-    { id: 'resend', icon: '\u21BB', title: 'Resend message', cls: 'msg-action-btn', handler(e) {
+    { id: 'resend', icon: '\u21BB', title: t('chat.resend_message'), cls: 'msg-action-btn', handler(e) {
       e.stopPropagation();
       if (window.chatModule?.resendUserMessage) window.chatModule.resendUserMessage(msgElement);
     }},
@@ -1534,7 +1535,7 @@ export function createUserMsgFooter(msgElement) {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'msg-action-btn msg-more-btn';
     moreBtn.type = 'button';
-    moreBtn.title = 'More actions';
+    moreBtn.title = t('chat.more_actions');
     moreBtn.textContent = '\u00B7\u00B7\u00B7';
     moreBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1565,10 +1566,13 @@ export function createUserMsgFooter(msgElement) {
       document.body.appendChild(menu);
       const btnRect = moreBtn.getBoundingClientRect();
       menu.style.top = (btnRect.top - menu.offsetHeight - 4) + 'px';
-      menu.style.left = btnRect.left + 'px';
+      let menuLeft = btnRect.right - menu.offsetWidth;
+      if (menuLeft < 8) menuLeft = btnRect.left;
+      menu.style.left = menuLeft + 'px';
       if (parseFloat(menu.style.top) < 8) menu.style.top = (btnRect.bottom + 4) + 'px';
       const mr = menu.getBoundingClientRect();
       if (mr.right > window.innerWidth - 8) menu.style.left = (window.innerWidth - mr.width - 8) + 'px';
+      if (parseFloat(menu.style.left) < 8) menu.style.left = '8px';
       closeMenu = bindMenuDismiss(menu, () => menu.remove(), (ev) => !menu.contains(ev.target) && ev.target !== moreBtn);    });
     actions.appendChild(moreBtn);
   }
@@ -1998,7 +2002,7 @@ export function addMessage(role, content, modelName, metadata) {
     const isSlash = metadata?.source === 'slash';
     const isCompacted = metadata?.compacted;
     const resolvedModel = modelName || metadata?.model;
-    var _roleText = role === 'user' ? 'You' : (isSlash || isCompacted) ? 'Odysseus' : shortModel(resolvedModel);
+    var _roleText = role === 'user' ? t('chat.role_you') : (isSlash || isCompacted) ? t('slash.role_name') : shortModel(resolvedModel);
     if (role === 'assistant' && (metadata?.research || metadata?.research_clarification)) {
       _roleText += ' (Research)';
     }

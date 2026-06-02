@@ -9,6 +9,7 @@ import { providerLogo } from './providers.js';
 import { initModelPicker, updateModelPicker } from './modelPicker.js';
 import themeModule from './theme.js';
 import spinnerModule from './spinner.js';
+import { t } from './i18n.js';
 
 const API_BASE = window.location.origin;
 
@@ -19,6 +20,12 @@ let _skipAutoSelect = false;
 
 const SIDEBAR_MAX_VISIBLE = 10;
 const FOLDER_MAX_VISIBLE = 5;
+
+function _displaySessionName(name) {
+  if (!name) return '';
+  if (name.startsWith('Notes ')) return t('nav.notes') + name.slice(5);
+  return name;
+}
 let _showAllSessions = false;
 let _expandedFolders = {};  // folderName -> true if "show more" clicked
 let _sortMode = Storage.get('odysseus-session-sort') || 'active'; // default to last active
@@ -62,7 +69,7 @@ function _deselectCurrentSession(sid) {
   if (currentSessionId !== sid) return;
   currentSessionId = null;
   uiModule.el('chat-history').innerHTML = '';
-  uiModule.el('current-meta').textContent = 'Odysseus Chat';
+  uiModule.el('current-meta').textContent = t('label.odysseus_chat');
   Storage.remove('lastSessionId');
   history.replaceState(null, '', window.location.pathname);
   if (window.chatModule && window.chatModule.showWelcomeScreen) {
@@ -169,7 +176,7 @@ function buildFolderSubmenu(sessionId, currentFolder, dropdown) {
   const noneOpt = document.createElement('div');
   noneOpt.className = 'dropdown-item-compact';
   if (!currentFolder) noneOpt.style.opacity = '0.5';
-  noneOpt.textContent = '(No folder)';
+  noneOpt.textContent = t('label.no_folder');
   noneOpt.addEventListener('click', async (e) => {
     e.stopPropagation();
     await moveToFolder(sessionId, '');
@@ -200,7 +207,7 @@ function buildFolderSubmenu(sessionId, currentFolder, dropdown) {
   const newOpt = document.createElement('div');
   newOpt.className = 'dropdown-item-compact';
   newOpt.style.color = 'var(--accent-primary)';
-  newOpt.textContent = '+ New Folder';
+  newOpt.textContent = t('label.new_folder');
   newOpt.addEventListener('click', async (e) => {
     e.stopPropagation();
     const name = await styledPrompt('Name this folder:', {
@@ -283,7 +290,7 @@ function createSessionItem(s) {
   const handle = document.createElement('span');
   handle.className = 'item-drag-handle';
   handle.textContent = '\u22EE\u22EE';
-  handle.title = 'Drag to reorder';
+  handle.title = t('title.drag_reorder');
   div.appendChild(handle);
 
   // Provider dot indicator
@@ -324,7 +331,7 @@ function createSessionItem(s) {
   // Favorite bookmark replaces session-icon when important
   if (s.is_important && !isOpenClaw) {
     icon.className = 'session-icon session-fav';
-    icon.title = 'Unfavorite';
+    icon.title = t('title.unfavorite');
     icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
     icon.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -332,7 +339,7 @@ function createSessionItem(s) {
       fd.append('important', false);
       await fetch(`${API_BASE}/api/session/${s.id}/important`, { method: 'POST', body: fd });
       s.is_important = false;
-      uiModule.showToast('Unfavorited');
+      uiModule.showToast(t('toast.unfavorited'));
       renderSessionList();
     });
   }
@@ -340,7 +347,7 @@ function createSessionItem(s) {
 
   const span = document.createElement('span');
   span.className = 'grow';
-  let chatTitle = s.name || '';
+  let chatTitle = _displaySessionName(s.name || '');
   if (_isFork) chatTitle = chatTitle.replace(/^Fork:\s*/, '').replace(/^\u2ADD\s*/, '');
   if (_isGroup) chatTitle = chatTitle.replace(/^\[GRP\]\s*/, '');
   let label = chatTitle;
@@ -370,7 +377,7 @@ function createSessionItem(s) {
           fd.append('name', newName);
           await fetch(`${API_BASE}/api/session/${s.id}`, { method: 'PATCH', body: fd });
           s.name = newName;
-          uiModule.showToast('Renamed');
+          uiModule.showToast(t('toast.renamed'));
         }
         _forceSidebarOpen();
         renderSessionList();
@@ -444,7 +451,7 @@ function createSessionItem(s) {
   // Create a dropdown menu button
   const menuBtn = document.createElement('button');
   menuBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-  menuBtn.title = 'Session actions';
+  menuBtn.title = t('title.session_actions');
   menuBtn.className = 'hamburger session-menu-btn';
 
   // Create dropdown menu
@@ -505,7 +512,7 @@ function createSessionItem(s) {
       const res = await fetch(`${API_BASE}/api/history/${s.id}`);
       const data = await res.json();
       const msgs = data.history || [];
-      if (!msgs.length) { uiModule.showToast('No messages to copy'); return; }
+      if (!msgs.length) { uiModule.showToast(t('toast.no_messages_to_copy')); return; }
       const lines = msgs
         .filter(m => m.role === 'user' || m.role === 'assistant')
         .map(m => {
@@ -526,7 +533,7 @@ function createSessionItem(s) {
         document.execCommand('copy');
         ta.remove();
       }
-      uiModule.showToast('Chat copied to clipboard');
+      uiModule.showToast(t('toast.chat_copied'));
     } catch (e) {
       console.error('Copy chat failed:', e);
       uiModule.showError('Failed to copy chat');
@@ -647,7 +654,7 @@ function createSessionItem(s) {
 
   deleteItem.addEventListener('click', async () => {
     if (s.is_important) {
-      uiModule.showToast('Unfavorite before deleting');
+      uiModule.showToast(t('toast.unfavorite_before_delete'));
       dropdown.style.display = 'none';
       return;
     }
@@ -696,7 +703,7 @@ function createSessionItem(s) {
         _forceSidebarOpen();
         await loadSessions();
         dropdown.style.display = 'none';
-        uiModule.showToast('Session archived');
+        uiModule.showToast(t('toast.session_archived'));
       } else {
         throw new Error('Failed to archive session');
       }
@@ -879,7 +886,7 @@ function _renderSessionListImpl() {
     const dragHandle = document.createElement('span');
     dragHandle.className = 'folder-drag-handle';
     dragHandle.textContent = '\u2630';
-    dragHandle.title = 'Drag to reorder folder';
+    dragHandle.title = t('title.drag_reorder_folder');
     header.appendChild(dragHandle);
 
     const toggle = document.createElement('span');
@@ -901,7 +908,7 @@ function _renderSessionListImpl() {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'folder-delete-btn';
     deleteBtn.textContent = '\u00d7';
-    deleteBtn.title = 'Delete folder and all sessions';
+    deleteBtn.title = t('title.delete_folder');
     deleteBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const count = folders[folderName].length;
@@ -1008,7 +1015,7 @@ function _renderSessionListImpl() {
     const dragHandle = document.createElement('span');
     dragHandle.className = 'folder-drag-handle';
     dragHandle.textContent = '\u2630';
-    dragHandle.title = 'Drag to reorder folder';
+    dragHandle.title = t('title.drag_reorder_folder');
     unsortedHeader.appendChild(dragHandle);
 
     const toggle = document.createElement('span');
@@ -1017,7 +1024,7 @@ function _renderSessionListImpl() {
     unsortedHeader.appendChild(toggle);
     const nameSpan = document.createElement('span');
     nameSpan.className = 'folder-name';
-    nameSpan.textContent = 'Unsorted';
+    nameSpan.textContent = t('label.unsorted');
     unsortedHeader.appendChild(nameSpan);
     const countSpan = document.createElement('span');
     countSpan.className = 'folder-count';
@@ -1027,7 +1034,7 @@ function _renderSessionListImpl() {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'folder-delete-btn';
     deleteBtn.textContent = '\u00d7';
-    deleteBtn.title = 'Delete all unsorted sessions';
+    deleteBtn.title = t('title.delete_unsorted');
     deleteBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       if (!await uiModule.styledConfirm(`Delete all ${unfiled.length} unsorted session(s)?`, { confirmText: 'Delete', danger: true })) return;
@@ -1454,7 +1461,7 @@ export async function loadSessions() {
       // Same session — just refresh the header name in case it was auto-generated
       const s = sessions.find(x => x.id === targetId);
       const metaEl = document.getElementById('current-meta');
-      if (metaEl && s) metaEl.textContent = s.name;
+      if (metaEl && s) metaEl.textContent = _displaySessionName(s.name);
     }
 
     // No session selected — still enable input so slash commands (e.g. /setup) work
@@ -1545,7 +1552,7 @@ export async function selectSession(id, { keepSidebar = false } = {}) {
     if (sendBtn && sendBtn.dataset.mode === 'streaming') {
       sendBtn.dataset.mode = '';
       sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
-      sendBtn.title = 'Send message';
+      sendBtn.title = t('title.send_message');
     }
     // Deactivate compare mode on session switch
     if (window.compareModule) {
@@ -1572,7 +1579,7 @@ export async function selectSession(id, { keepSidebar = false } = {}) {
 
     const currentMetaEl = uiModule.el('current-meta');
     if (currentMetaEl) {
-      currentMetaEl.textContent = meta ? meta.name : 'Odysseus Chat';
+      currentMetaEl.textContent = meta ? _displaySessionName(meta.name) : t('chat.odysseus_chat');
     }
     // Update model picker visibility
     updateModelPicker();
@@ -1808,7 +1815,7 @@ export function createDirectChat(url, modelId, endpointId) {
   // Update current-meta header
   const metaEl = document.getElementById('current-meta');
   if (metaEl) {
-    metaEl.textContent = 'New Chat';
+    metaEl.textContent = t('label.new_chat');
   }
 
   // Enable input
@@ -1942,7 +1949,7 @@ async function _onSessionListKeydown(e) {
     const s = sessions.find(x => x.id === sid);
     if (!s) return;
     if (s.is_important) {
-      uiModule.showToast('Unfavorite before deleting');
+      uiModule.showToast(t('toast.unfavorite_before_delete'));
       return;
     }
     const ok = await uiModule.styledConfirm('Delete this session?', { confirmText: 'Delete', danger: true });
@@ -2376,7 +2383,7 @@ async function _arcRestore(sid) {
     if (!res.ok) throw new Error('Failed');
     _arcRemove(sid);
     _arcRefreshUI();
-    uiModule.showToast('Session restored');
+    uiModule.showToast(t('toast.session_restored'));
     loadSessions();
   } catch { uiModule.showError('Failed to restore session'); }
 }
@@ -2389,7 +2396,7 @@ async function _arcDelete(sid) {
     await _animateSessionRowsRemoving([sid], '#archive-grid .archive-row[data-session-id]');
     _arcRemove(sid);
     _arcRefreshUI();
-    uiModule.showToast('Session deleted');
+    uiModule.showToast(t('toast.session_deleted'));
   } catch { uiModule.showError('Failed to delete session'); }
 }
 
@@ -2674,17 +2681,17 @@ export function openLibrary(defaultTab) {
       document.getElementById('lib-bulk-bar').classList.add('hidden');
       // Update bulk action button label based on tab
       const action1 = document.getElementById('lib-bulk-action1');
-      if (_lib.tab === 'archive') { action1.textContent = 'Restore'; }
-      else if (_lib.tab === 'chats') { action1.textContent = 'Archive'; }
-      else if (_lib.tab === 'research') { action1.textContent = 'Open Report'; }
-      else { action1.textContent = 'Export'; }
+      if (_lib.tab === 'archive') { action1.textContent = t('session.restore'); }
+      else if (_lib.tab === 'chats') { action1.textContent = t('session.archive'); }
+      else if (_lib.tab === 'research') { action1.textContent = t('session.open_report'); }
+      else { action1.textContent = t('session.export'); }
       _renderLibGrid();
     });
   });
 
   // Set initial bulk action label
   const _initAction = document.getElementById('lib-bulk-action1');
-  if (_initAction) _initAction.textContent = _lib.tab === 'archive' ? 'Restore' : _lib.tab === 'documents' ? 'Export' : 'Archive';
+  if (_initAction) _initAction.textContent = _lib.tab === 'archive' ? t('session.restore') : _lib.tab === 'documents' ? t('session.export') : t('session.archive');
 
   document.getElementById('lib-sort').addEventListener('change', () => { _lib.sort = document.getElementById('lib-sort').value; _renderLibGrid(); });
   document.getElementById('lib-search').addEventListener('input', (e) => {
@@ -2912,7 +2919,7 @@ async function _renderLibResearch(grid) {
               if (modal) modal.style.display = 'none';
               const msgInput = document.getElementById('message');
               if (msgInput) { msgInput.value = item.query; msgInput.focus(); }
-              uiModule.showToast('Toggle Research and send to re-run');
+              uiModule.showToast(t('toast.toggle_research'));
             }},
             { label: 'Delete', danger: true, action: async () => {
               if (!await window.styledConfirm('Delete this research?', { confirmText: 'Delete', danger: true })) return;

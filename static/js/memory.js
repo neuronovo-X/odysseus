@@ -6,6 +6,7 @@ import sessionModule from './sessions.js';
 import spinnerModule from './spinner.js';
 import { makeWindowDraggable } from './windowDrag.js';
 import { snapModalToZone } from './tileManager.js';
+import { t } from './i18n.js';
 
 var escapeHtml = uiModule.esc;
 
@@ -181,7 +182,7 @@ async function syncPrefSlider(elementId, prefKey, labelId, defaultVal) {
           body: JSON.stringify({ value: pref })
         });
         if (!res.ok) { showError('Failed to save preference'); return; }
-        showToast(pref === 0 ? 'Skill confidence: All' : `Skill confidence ≥ ${Math.round(pref * 100)}%`);
+        showToast(pref === 0 ? t('memory.skill_confidence_all') : `Skill confidence ≥ ${Math.round(pref * 100)}%`);
       } catch (e) {
         console.error(`Failed to save ${prefKey} pref:`, e);
         showError('Failed to save preference');
@@ -319,7 +320,7 @@ function enterSelectMode() {
   const bulkBar = document.getElementById('memory-bulk-bar');
   const selectBtn = document.getElementById('memory-select-btn');
   if (bulkBar) bulkBar.classList.remove('hidden');
-  if (selectBtn) { selectBtn.classList.add('active'); selectBtn.textContent = 'Cancel'; }
+  if (selectBtn) { selectBtn.classList.add('active'); selectBtn.textContent = t('memory.select_cancel'); }
   updateBulkCount();
   renderMemoryList();
 }
@@ -331,7 +332,7 @@ function exitSelectMode() {
   const selectBtn = document.getElementById('memory-select-btn');
   const selectAll = document.getElementById('memory-select-all');
   if (bulkBar) bulkBar.classList.add('hidden');
-  if (selectBtn) { selectBtn.classList.remove('active'); selectBtn.textContent = 'Select'; }
+  if (selectBtn) { selectBtn.classList.remove('active'); selectBtn.textContent = t('memory.select_start'); }
   if (selectAll) selectAll.checked = false;
   renderMemoryList();
 }
@@ -429,7 +430,7 @@ export async function tidyMemories() {
     if ((data.removed || 0) === 0) {
       if (tidySpinner) tidySpinner.destroy();
       if (tidyBtn) { tidyBtn.disabled = false; tidyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;margin-right:2px;"><path d="M12 0L14.59 8.41L23 12L14.59 15.59L12 24L9.41 15.59L1 12L9.41 8.41Z"/></svg> Tidy'; }
-      showToast('Already clean');
+      showToast(t('toast.already_clean'));
       return;
     }
 
@@ -645,7 +646,7 @@ export function renderMemoryList() {
     if (memory.pinned) {
       const pinBadge = document.createElement('span');
       pinBadge.className = 'memory-cat-badge memory-cat-pinned';
-      pinBadge.textContent = 'pinned';
+      pinBadge.textContent = t('memory.item_pinned');
       meta.appendChild(pinBadge);
     }
 
@@ -698,7 +699,7 @@ export function renderMemoryList() {
       const menuBtn = document.createElement('button');
       menuBtn.className = 'memory-menu-btn';
       menuBtn.innerHTML = '\u22EE';
-      menuBtn.title = 'Actions';
+      menuBtn.title = t('memory.actions_title');
 
       const dropdown = document.createElement('div');
       dropdown.className = 'memory-item-dropdown';
@@ -716,12 +717,12 @@ export function renderMemoryList() {
 
       const editItem = document.createElement('div');
       editItem.className = 'dropdown-item-compact';
-      editItem.textContent = '✎ Edit';
+      editItem.textContent = t('memory.edit');
       editItem.addEventListener('click', () => { dropdown.style.display = 'none'; startInlineEdit(item, memory); });
 
       const deleteItem = document.createElement('div');
       deleteItem.className = 'dropdown-item-compact memory-dropdown-delete';
-      deleteItem.textContent = '✕ Delete';
+      deleteItem.textContent = t('memory.delete');
       deleteItem.addEventListener('click', () => { dropdown.style.display = 'none'; deleteMemory(memory.id); });
 
       // Select — enters bulk-select mode and pre-selects this memory. Same
@@ -743,7 +744,7 @@ export function renderMemoryList() {
       // dismisses cleanly.
       const cancelItem = document.createElement('div');
       cancelItem.className = 'dropdown-item-compact dropdown-cancel-mobile';
-      cancelItem.textContent = '✕ Cancel';
+      cancelItem.textContent = t('memory.cancel');
       cancelItem.addEventListener('click', (e) => { e.stopPropagation(); if (dropdown.parentNode) dropdown.remove(); });
 
       dropdown.appendChild(pinItem);
@@ -890,12 +891,12 @@ function startInlineEdit(item, memory) {
 
   const saveBtn = document.createElement('button');
   saveBtn.className = 'memory-item-btn save';
-  saveBtn.textContent = 'save';
+  saveBtn.textContent = t('memory.save');
   saveBtn.addEventListener('click', () => saveInlineEdit(memory.id, input.value, catSelect.value));
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'memory-item-btn';
-  cancelBtn.textContent = 'cancel';
+  cancelBtn.textContent = t('memory.cancel_lower');
   cancelBtn.addEventListener('click', () => renderMemoryList());
 
   actions.appendChild(saveBtn);
@@ -939,7 +940,7 @@ async function saveInlineEdit(id, newText, newCategory) {
 
     if (response.ok) {
       await loadMemories();
-      showToast('Memory updated');
+      showToast(t('toast.memory_updated'));
     } else {
       const errorData = await response.json();
       throw new Error(errorData.detail || 'Failed to update memory');
@@ -997,7 +998,7 @@ export async function addNewMemory() {
     if (response.ok) {
       input.value = '';
       await loadMemories();
-      showToast('Memory added');
+      showToast(t('toast.memory_added'));
     } else {
       const errorData = await response.json();
       console.error('Server error details:', errorData);
@@ -1051,7 +1052,7 @@ export async function deleteMemory(id) {
     if (response.ok) {
       await animateMemoryRemoval([id]);
       await loadMemories();
-      showToast('Memory deleted');
+      showToast(t('toast.memory_deleted'));
     } else {
       throw new Error('Failed to delete');
     }
@@ -1093,7 +1094,7 @@ export async function extractMemory(sessionId) {
     header.innerHTML = '<span>Suggested memories</span>';
     const backBtn = document.createElement('button');
     backBtn.className = 'memory-item-btn';
-    backBtn.textContent = 'back';
+    backBtn.textContent = t('memory.back');
     backBtn.addEventListener('click', () => {
       body.classList.add('hidden');
       body.innerHTML = '';
@@ -1110,7 +1111,7 @@ export async function extractMemory(sessionId) {
       txt.textContent = s;
       const btn = document.createElement('button');
       btn.className = 'memory-item-btn save';
-      btn.textContent = 'save';
+      btn.textContent = t('memory.save_lower');
       btn.addEventListener('click', async () => {
         await fetch(`${window.location.origin}/api/memory/add`, {
           method: 'POST',
@@ -1118,8 +1119,8 @@ export async function extractMemory(sessionId) {
           body: JSON.stringify({ text: s })
         });
         btn.disabled = true;
-        btn.textContent = 'saved';
-        showToast('Saved to memory');
+        btn.textContent = t('memory.saved');
+        showToast(t('toast.saved_to_memory'));
       });
       div.appendChild(txt);
       div.appendChild(btn);
@@ -1134,7 +1135,7 @@ export async function extractMemory(sessionId) {
 
 export function exportMemories() {
   if (!memories || memories.length === 0) {
-    showToast('No memories to export');
+    showToast(t('toast.no_memories_to_export'));
     return;
   }
   const data = JSON.stringify(memories, null, 2);
@@ -1226,7 +1227,7 @@ async function handleImportFile(file) {
       headerActions.className = 'memory-suggestions-actions';
       const backBtn = document.createElement('button');
       backBtn.className = 'memory-item-btn';
-      backBtn.textContent = 'back';
+      backBtn.textContent = t('memory.back');
       backBtn.addEventListener('click', () => {
         body.classList.add('hidden');
         body.innerHTML = '';
@@ -1234,7 +1235,7 @@ async function handleImportFile(file) {
       });
       const saveAllBtn = document.createElement('button');
       saveAllBtn.className = 'memory-item-btn save';
-      saveAllBtn.textContent = 'save all';
+      saveAllBtn.textContent = t('memory.save_all');
       saveAllBtn.addEventListener('click', async () => {
         let saved = 0;
         for (const s of reviewItems) {
@@ -1280,7 +1281,7 @@ async function handleImportFile(file) {
         actionWrap.className = 'memory-suggestion-actions';
         const btn = document.createElement('button');
         btn.className = 'memory-item-btn save';
-        btn.textContent = 'save';
+        btn.textContent = t('memory.save_lower');
         btn.addEventListener('click', async () => {
           await fetch(`${window.location.origin}/api/memory/add`, {
             method: 'POST',
@@ -1291,12 +1292,12 @@ async function handleImportFile(file) {
           div.remove();
           updateHeaderTitle();
           btn.disabled = true;
-          btn.textContent = 'saved';
-          showToast('Saved to memory');
+          btn.textContent = t('memory.saved');
+          showToast(t('toast.saved_to_memory'));
         });
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'memory-item-btn delete';
-        deleteBtn.textContent = 'delete';
+        deleteBtn.textContent = t('memory.delete_lower');
         deleteBtn.addEventListener('click', () => {
           item.active = false;
           div.remove();

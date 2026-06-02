@@ -16,6 +16,13 @@ import {
   _calReadableTextColor,
   _ds, _addDays, _shiftDT, _tzOffset, _localDateOf,
 } from './calendar/utils.js';
+import { t } from './i18n.js';
+
+function _monthName(i) { return t('calendar.month.' + ((i % 12) + 12) % 12); }
+function _calViewLabel(v) {
+  const key = { week: 'calendar.view.week', month: 'calendar.view.month', year: 'calendar.view.year', agenda: 'calendar.view.agenda' }[v];
+  return key ? t(key) : v;
+}
 
 const API_BASE = window.location.origin;
 // Open a file picker, upload the chosen image, return the URL string.
@@ -449,15 +456,15 @@ function _showEventMoreMenu(ev, anchor) {
 
   const _editIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
 
-  dropdown.appendChild(_item(_editIcon, 'Edit', () => {
+  dropdown.appendChild(_item(_editIcon, t('calendar.edit'), () => {
     closeMenu();
     _showEventForm(ev);
   }));
 
-  dropdown.appendChild(_item(_trashIcon, 'Delete', async () => {
+  dropdown.appendChild(_item(_trashIcon, t('calendar.delete_event'), async () => {
     closeMenu();
     const name = ev.summary ? `"${ev.summary}"` : 'this event';
-    const ok = await uiModule.styledConfirm(`Delete ${name}?`, { confirmText: 'Delete', danger: true });
+    const ok = await uiModule.styledConfirm(t('calendar.delete_confirm').replace('{title}', name), { confirmText: t('calendar.delete_event'), danger: true });
     if (!ok) return;
     try { await _deleteEvent(ev.uid); setTimeout(() => _render(), 100); } catch (_) {}
   }, true));
@@ -716,8 +723,8 @@ function _renderEmpty() {
         <line x1="8" y1="2" x2="8" y2="6"/>
         <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
-      <div class="cal-empty-title">${hasError ? 'Calendar unavailable' : 'No calendars yet'}</div>
-      <div class="cal-empty-msg">${hasError ? _e(_calendarsError) : 'Create a local calendar, import an .ics file, or sync via CalDAV.'}</div>
+      <div class="cal-empty-title">${hasError ? t('calendar.unavailable') : t('calendar.no_calendars')}</div>
+      <div class="cal-empty-msg">${hasError ? _e(_calendarsError) : t('calendar.empty_hint')}</div>
       ${hasError ? `
         <button class="cal-btn cal-btn-primary" id="cal-goto-settings">Open Settings</button>
       ` : `
@@ -789,20 +796,20 @@ function _headerHTML() {
   return `<div class="cal-toolbar">
     <div class="cal-toolbar-nav">
       <button class="cal-nav" id="cal-prev">&larr;</button>
-      <button class="cal-nav cal-today-btn" id="cal-today">Today</button>
-      <span class="cal-title">${_view === 'agenda' ? 'Upcoming' : MONTHS[_currentDate.getMonth()] + ' ' + _currentDate.getFullYear()}${weekSuffix}</span>
+      <button class="cal-nav cal-today-btn" id="cal-today">${t('calendar.today')}</button>
+      <span class="cal-title">${_view === 'agenda' ? t('calendar.upcoming') : _monthName(_currentDate.getMonth()) + ' ' + _currentDate.getFullYear()}${weekSuffix}</span>
       <button class="cal-nav" id="cal-next">&rarr;</button>
     </div>
     <div class="cal-toolbar-right">
       <div class="cal-view-toggle">
         ${['week', 'month', 'year', 'agenda'].map(v =>
-          `<button class="cal-view-btn${_view === v ? ' active' : ''}" data-view="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`
+          `<button class="cal-view-btn${_view === v ? ' active' : ''}" data-view="${v}">${_calViewLabel(v)}</button>`
         ).join('')}
       </div>
-      <button class="cal-nav" id="cal-settings" title="Calendar settings" style="position:relative;top:-3px;"><svg width="13" height="13" style="position:relative;top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-      <button class="cal-nav${window._calSyncing ? ' cal-syncing' : ''}${window._calSyncDone ? ' cal-sync-done' : ''}" id="cal-sync" title="Refresh from database" style="position:relative;top:-3px;">${window._calSyncDone ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>'}</button>
+      <button class="cal-nav" id="cal-settings" title="${t('calendar.settings')}" style="position:relative;top:-3px;"><svg width="13" height="13" style="position:relative;top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      <button class="cal-nav${window._calSyncing ? ' cal-syncing' : ''}${window._calSyncDone ? ' cal-sync-done' : ''}" id="cal-sync" title="${t('calendar.refresh_db')}" style="position:relative;top:-3px;">${window._calSyncDone ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>'}</button>
       ${_filtersToggleHTML()}
-      <button class="cal-add-btn cal-add-btn-text" id="cal-add" title="New event"><span class="cal-add-plus">+</span><span class="cal-add-label">New</span></button>
+      <button class="cal-add-btn cal-add-btn-text" id="cal-add" title="${t('calendar.new_event')}"><span class="cal-add-plus">+</span><span class="cal-add-label">${t('calendar.new')}</span></button>
     </div>
   </div>
   <div class="cal-quickadd-row" id="cal-quickadd-row">
@@ -854,7 +861,7 @@ function _filtersToggleHTML() {
   // Inline toolbar button only. The chip row renders separately below.
   const { calFilters, typeFilters } = _filtersData();
   if (!calFilters && !typeFilters) return '';
-  return `<button class="cal-filter-toggle" id="cal-filter-toggle" title="${_filtersCollapsed ? 'Show filters' : 'Hide filters'}">${_filtersCollapsed ? '+ tags' : '− tags'}</button>`;
+  return `<button class="cal-filter-toggle" id="cal-filter-toggle" title="${_filtersCollapsed ? t('calendar.show_filters') : t('calendar.hide_filters')}">${_filtersCollapsed ? '+ tags' : '− tags'}</button>`;
 }
 
 function _filtersRowHTML() {
@@ -1319,7 +1326,7 @@ async function _renderWeek() {
         try {
           await _updateEvent(uid, { dtstart: newDtstart, dtend: newDtend });
           _render();
-          _showCalUndoToast('Moved event', async () => {
+          _showCalUndoToast(t('calendar.moved_event'), async () => {
             try {
               await _updateEvent(uid, { dtstart: prevDtstart, dtend: prevDtend });
               _render();
@@ -1381,7 +1388,7 @@ async function _renderWeek() {
         try {
           await _updateEvent(uid, { dtend: newDtend });
           _render();
-          _showCalUndoToast('Resized event', async () => {
+          _showCalUndoToast(t('calendar.resized_event'), async () => {
             try {
               await _updateEvent(uid, { dtend: prevDtend });
               _render();
@@ -1538,13 +1545,13 @@ async function _renderAgenda() {
   } else {
     for (const date of dates) {
       const evs = byDate.get(date);
-      const todayBadge = (date === today) ? ' <span class="cal-agenda-today-badge">Today</span>' : '';
+      const todayBadge = (date === today) ? ` <span class="cal-agenda-today-badge">${t('calendar.today_badge')}</span>` : '';
       h += `<div class="cal-agenda-day${date === today ? ' is-today' : ''}"><div class="cal-agenda-date">${_fmtDate(date)}${todayBadge}</div>`;
       if (!evs.length) {
-        h += '<div class="cal-agenda-empty">No events</div>';
+        h += '<div class="cal-agenda-empty">' + t('calendar.no_events_day') + '</div>';
       }
       for (const ev of evs) {
-        const t = ev.all_day ? 'All day' : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
+        const timeLabel = ev.all_day ? t('calendar.all_day') : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
         const _typeTag = ev.event_type
           ? `<span class="cal-event-tag" style="color:${_TYPE_PALETTE[ev.event_type] || _TYPE_PALETTE.other};border-color:${_TYPE_PALETTE[ev.event_type] || _TYPE_PALETTE.other}">#${_e(ev.event_type)}</span>`
           : '';
@@ -1554,9 +1561,9 @@ async function _renderAgenda() {
           <div class="cal-event-dot" style="background:${_calColor(ev)}"></div>
           <div class="cal-event-info">
             <div class="cal-event-name">${_impMark}${_e(ev.summary)} ${_typeTag}</div>
-            <div class="cal-event-time">${t}${ev.location ? ' · ' + _locHTML(ev.location) : ''}</div>
+            <div class="cal-event-time">${timeLabel}${ev.location ? ' · ' + _locHTML(ev.location) : ''}</div>
           </div>
-          <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="More">${_moreIcon}</button>
+          <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="${t('calendar.more')}">${_moreIcon}</button>
         </div>`;
       }
       h += '</div>';
@@ -1611,18 +1618,18 @@ async function _renderSearch() {
   let h = _headerHTML() + _filtersRowHTML() + '<div class="cal-search-results">';
   h += `<div class="cal-search-count">${results.length} result${results.length !== 1 ? 's' : ''} for "${_e(_searchQuery)}"</div>`;
   if (!results.length) {
-    h += '<div class="cal-empty">No events match your search</div>';
+    h += '<div class="cal-empty">' + t('calendar.no_events_search') + '</div>';
   } else {
     for (const ev of results) {
       const evDate = _localDateOf(ev.dtstart);
-      const t = ev.all_day ? 'All day' : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
+      const timeLabel = ev.all_day ? t('calendar.all_day') : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
       h += `<div class="cal-agenda-event" data-uid="${_e(ev.uid)}">
         <div class="cal-event-dot" style="background:${_calColor(ev)}"></div>
         <div class="cal-event-info">
           <div class="cal-event-name">${_e(ev.summary)}</div>
-          <div class="cal-event-time">${_fmtDate(evDate)} · ${t}${ev.location ? ' · ' + _locHTML(ev.location) : ''}</div>
+          <div class="cal-event-time">${_fmtDate(evDate)} · ${timeLabel}${ev.location ? ' · ' + _locHTML(ev.location) : ''}</div>
         </div>
-        <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="More">${_moreIcon}</button>
+        <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="${t('calendar.more')}">${_moreIcon}</button>
       </div>`;
     }
   }
@@ -1715,7 +1722,7 @@ function _dayDetailHTML(dateStr) {
   // Magnifying-glass icon inside the search field via a wrapper + padding-left.
   const searchInput = `<div class="cal-search-wrap">
     <svg class="cal-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input type="search" class="cal-search-input cal-day-search" id="cal-search" placeholder="Search all events…" value="${_e(_searchQuery)}" />
+    <input type="search" class="cal-search-input cal-day-search" id="cal-search" placeholder="${t('calendar.search_placeholder')}" value="${_e(_searchQuery)}" />
   </div>`;
   let h = `<div class="cal-splitter" role="separator" aria-orientation="horizontal" tabindex="0" title="Drag to resize"><div class="cal-splitter-grip"></div></div>
     <div class="cal-day-detail">
@@ -1740,27 +1747,27 @@ function _dayDetailHTML(dateStr) {
     } else {
       results.forEach(ev => {
         const date = ev.all_day ? ev.dtstart : _localDateOf(ev.dtstart);
-        const t = ev.all_day ? 'All day' : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
+        const timeLabel = ev.all_day ? t('calendar.all_day') : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
         const bgStyle = _calItemBgStyle(ev);
         h += `<div class="cal-event-item${bgStyle ? ' cal-event-item-bg' : ''}" data-uid="${_e(ev.uid)}"${bgStyle ? ` style="${bgStyle}"` : ''}>
           <div class="cal-event-dot" style="background:${_calColor(ev)}"></div>
           <div class="cal-event-info">
             <div class="cal-event-name">${_e(ev.summary)}</div>
-            <div class="cal-event-time">${_fmtDate(date)} · ${t}</div>
+            <div class="cal-event-time">${_fmtDate(date)} · ${timeLabel}</div>
             ${ev.location ? `<div class="cal-event-loc">${_locHTML(ev.location)}</div>` : ''}
           </div>
-          <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="More">${_moreIcon}</button>
+          <button class="cal-event-more" data-uid="${_e(ev.uid)}" title="${t('calendar.more')}">${_moreIcon}</button>
         </div>`;
       });
     }
     return h + '</div>';
   }
   const evs = _eventsForDay(dateStr);
-  if (!evs.length) h += '<div class="cal-empty">No events</div>';
+  if (!evs.length) h += '<div class="cal-empty">' + t('calendar.no_events_day') + '</div>';
   else evs.forEach(ev => {
-    const t = ev.all_day ? 'All day' : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
+    const timeLabel = ev.all_day ? t('calendar.all_day') : _fmtTime(ev.dtstart) + ' – ' + _fmtTime(ev.dtend);
     const _bgStyle = _calItemBgStyle(ev);
-    h += `<div class="cal-event-item${_bgStyle ? ' cal-event-item-bg' : ''}" data-uid="${_e(ev.uid)}"${_bgStyle ? ` style="${_bgStyle}"` : ''}><div class="cal-event-dot" style="background:${_calColor(ev)}"></div><div class="cal-event-info"><div class="cal-event-name">${_e(ev.summary)}</div><div class="cal-event-time">${t}</div>${ev.location ? `<div class="cal-event-loc">${_locHTML(ev.location)}</div>` : ''}</div><button class="cal-event-more" data-uid="${_e(ev.uid)}" title="More">${_moreIcon}</button></div>`;
+    h += `<div class="cal-event-item${_bgStyle ? ' cal-event-item-bg' : ''}" data-uid="${_e(ev.uid)}"${_bgStyle ? ` style="${_bgStyle}"` : ''}><div class="cal-event-dot" style="background:${_calColor(ev)}"></div><div class="cal-event-info"><div class="cal-event-name">${_e(ev.summary)}</div><div class="cal-event-time">${timeLabel}</div>${ev.location ? `<div class="cal-event-loc">${_locHTML(ev.location)}</div>` : ''}</div><button class="cal-event-more" data-uid="${_e(ev.uid)}" title="${t('calendar.more')}">${_moreIcon}</button></div>`;
   });
   return h + '</div>';
 }
@@ -2077,7 +2084,7 @@ function _wireAll(body) {
         window._calSyncDone = false;
         if (_open) _render();
       }, 900);
-      if (uiModule?.showToast) uiModule.showToast('Calendar refreshed');
+      if (uiModule?.showToast) uiModule.showToast(t('calendar.refreshed'));
     }
   });
   // Brief spin on the "+" glyph before the new-event form opens. The
@@ -2317,7 +2324,7 @@ function _wireAll(body) {
       _pushCalUndo({ label: 'move', run: () => _updateEvent(undoSnap.uid, { dtstart: undoSnap.dtstart, dtend: undoSnap.dtend || undefined }).then(_render) });
       await _updateEvent(ev.uid, { dtstart: _shiftDT(ev.dtstart, diff), dtend: ev.dtend ? _shiftDT(ev.dtend, diff) : undefined });
       _render();
-      uiModule.showToast?.('Moved', { duration: 4000, action: 'Undo', actionHint: 'Ctrl+Z', onAction: _popAndRunCalUndo });
+      uiModule.showToast?.(t('calendar.moved'), { duration: 4000, action: 'Undo', actionHint: 'Ctrl+Z', onAction: _popAndRunCalUndo });
     });
   });
 }
@@ -2508,7 +2515,7 @@ async function _showCalSettings() {
     const file = e.target.files[0];
     if (!file) return;
     const status = overlay.querySelector('#cal-import-status');
-    status.textContent = 'Importing...';
+    status.textContent = t('calendar.importing');
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -2549,7 +2556,7 @@ async function _showCalSettings() {
     const btn = e.currentTarget;
     const status = overlay.querySelector('#cal-settings-sync-status');
     btn.disabled = true;
-    status.textContent = 'Syncing…';
+    status.textContent = t('calendar.syncing');
     const data = await _syncCaldav(true) || {};
     if (data.errors && data.errors.length) {
       status.textContent = `Sync failed: ${data.errors[0]}`;
@@ -2640,7 +2647,7 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
   const _expandedAtStart = isEdit && _hasDetails;
 
   body.innerHTML = `<div class="cal-form cal-form-bespoke${_expandedAtStart ? ' is-expanded' : ''}">
-    <button type="button" class="cal-form-mobile-cancel" id="cal-form-mobile-cancel" title="Cancel" aria-label="Cancel event">
+    <button type="button" class="cal-form-mobile-cancel" id="cal-form-mobile-cancel" title="${t('calendar.cancel')}" aria-label="${t('calendar.cancel')}">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="cal-form-today" id="cal-form-today">Today is <span id="cal-form-today-text">${_clockDate(_today())} · ${_nowClock()}</span></div>
@@ -2654,16 +2661,16 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
 
     <div class="cal-title-wrap">
       <input type="text" id="cal-f-sum" placeholder=" " value="${_e(existing?.summary || '')}" class="cal-input cal-hero-title" autocomplete="off" />
-      <span class="cal-title-hint" aria-hidden="true">${isEdit ? 'Event title' : 'What’s happening?'}<svg class="cal-title-enter-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></span>
+      <span class="cal-title-hint" aria-hidden="true">${isEdit ? t('calendar.event_title_edit') : t('calendar.event_title_new')}<svg class="cal-title-enter-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></span>
     </div>
 
     <div class="cal-form-details" id="cal-form-details" aria-hidden="${_expandedAtStart ? 'false' : 'true'}">
       <div class="cal-form-row">
         <input type="date" id="cal-f-date" value="${ds}" class="cal-input" />
-        <span style="opacity:0.3">to</span>
+        <span style="opacity:0.3">${t('calendar.date_to')}</span>
         <input type="date" id="cal-f-date-end" value="${de}" class="cal-input" />
         <div class="cal-allday-ctrl">
-          <span class="cal-allday-label">All day</span>
+          <span class="cal-allday-label">${t('calendar.all_day')}</span>
           <label class="admin-switch cal-allday-switch"><input type="checkbox" id="cal-f-allday" ${ad ? 'checked' : ''} /><span class="admin-slider"></span></label>
         </div>
       </div>
@@ -2673,38 +2680,38 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
         <input type="time" id="cal-f-end" value="${et}" class="cal-input cal-input-time" />
       </div>
       <div class="cal-loc-row">
-        <input type="text" id="cal-f-loc" placeholder="Location" value="${_e(existing?.location || '')}" class="cal-input" />
-        <a id="cal-f-loc-map" class="cal-loc-map" href="#" target="_blank" rel="noopener noreferrer" title="Open in Maps" aria-label="Open in Apple Maps" tabindex="-1">
+        <input type="text" id="cal-f-loc" placeholder="${t('calendar.location')}" value="${_e(existing?.location || '')}" class="cal-input" />
+        <a id="cal-f-loc-map" class="cal-loc-map" href="#" target="_blank" rel="noopener noreferrer" title="${t('calendar.open_maps')}" aria-label="${t('calendar.open_maps')}" tabindex="-1">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         </a>
       </div>
       <select id="cal-f-rrule" class="cal-input">
-        <option value="" ${!existing?.rrule ? 'selected' : ''}>Does not repeat</option>
-        <option value="FREQ=DAILY" ${existing?.rrule === 'FREQ=DAILY' ? 'selected' : ''}>Daily</option>
-        <option value="FREQ=WEEKLY" ${existing?.rrule === 'FREQ=WEEKLY' ? 'selected' : ''}>Weekly</option>
-        <option value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" ${existing?.rrule === 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR' ? 'selected' : ''}>Weekdays</option>
-        <option value="FREQ=MONTHLY" ${existing?.rrule === 'FREQ=MONTHLY' ? 'selected' : ''}>Monthly</option>
-        <option value="FREQ=YEARLY" ${existing?.rrule === 'FREQ=YEARLY' ? 'selected' : ''}>Yearly</option>
+        <option value="" ${!existing?.rrule ? 'selected' : ''}>${t('calendar.repeat_none')}</option>
+        <option value="FREQ=DAILY" ${existing?.rrule === 'FREQ=DAILY' ? 'selected' : ''}>${t('calendar.repeat_daily')}</option>
+        <option value="FREQ=WEEKLY" ${existing?.rrule === 'FREQ=WEEKLY' ? 'selected' : ''}>${t('calendar.repeat_weekly')}</option>
+        <option value="FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" ${existing?.rrule === 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR' ? 'selected' : ''}>${t('calendar.repeat_weekdays')}</option>
+        <option value="FREQ=MONTHLY" ${existing?.rrule === 'FREQ=MONTHLY' ? 'selected' : ''}>${t('calendar.repeat_monthly')}</option>
+        <option value="FREQ=YEARLY" ${existing?.rrule === 'FREQ=YEARLY' ? 'selected' : ''}>${t('calendar.repeat_yearly')}</option>
       </select>
-      <textarea id="cal-f-desc" placeholder="Description" class="cal-input" rows="2">${_e(existing?.description || '')}</textarea>
+      <textarea id="cal-f-desc" placeholder="${t('calendar.description')}" class="cal-input" rows="2">${_e(existing?.description || '')}</textarea>
       <div class="cal-form-row" style="align-items:center;gap:8px;">
-        <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><svg class="cal-remind-bell" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent, var(--red))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style="opacity:0.5;">Reminder</span></label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:4px;"><svg class="cal-remind-bell" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--accent, var(--red))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style="opacity:0.5;">${t('calendar.reminder')}</span></label>
         <select id="cal-f-remind" class="cal-input" style="flex:1;">
-          <option value="" ${isEdit ? 'selected' : ''}>No reminder</option>
-          <option value="0">At event time</option>
-          <option value="5">5 minutes before</option>
-          <option value="10">10 minutes before</option>
-          <option value="15" ${!isEdit ? 'selected' : ''}>15 minutes before</option>
-          <option value="30">30 minutes before</option>
-          <option value="60">1 hour before</option>
-          <option value="120">2 hours before</option>
-          <option value="1440">1 day before</option>
-          <option value="custom">Exact time...</option>
+          <option value="" ${isEdit ? 'selected' : ''}>${t('calendar.reminder_none')}</option>
+          <option value="0">${t('calendar.reminder_at')}</option>
+          <option value="5">${t('calendar.reminder_5m')}</option>
+          <option value="10">${t('calendar.reminder_10m')}</option>
+          <option value="15" ${!isEdit ? 'selected' : ''}>${t('calendar.reminder_15m')}</option>
+          <option value="30">${t('calendar.reminder_30m')}</option>
+          <option value="60">${t('calendar.reminder_1h')}</option>
+          <option value="120">${t('calendar.reminder_2h')}</option>
+          <option value="1440">${t('calendar.reminder_1d')}</option>
+          <option value="custom">${t('calendar.reminder_custom')}</option>
         </select>
         <input type="datetime-local" id="cal-f-remind-custom" class="cal-input" style="flex:1;display:none;" />
       </div>
       <div class="cal-form-row" style="align-items:center;gap:8px;">
-        <label style="font-size:11px;opacity:0.5;">Color</label>
+        <label style="font-size:11px;opacity:0.5;">${t('calendar.color')}</label>
         <div class="note-color-picker" id="cal-f-colors">
           ${CAL_COLORS.map(c => {
             const cur = existing?.color || '';
@@ -2725,11 +2732,11 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
     </div>
 
     <div class="cal-form-actions">
-      ${isEdit ? `<button id="cal-f-del" class="cal-btn cal-btn-danger" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>Delete</button>` : ''}
-      <button id="cal-f-cancel" class="cal-btn" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cancel</button>
+      ${isEdit ? `<button id="cal-f-del" class="cal-btn cal-btn-danger" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>${t('calendar.delete_event')}</button>` : ''}
+      <button id="cal-f-cancel" class="cal-btn" style="display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>${t('calendar.cancel')}</button>
       <button id="cal-f-save" class="cal-btn cal-btn-primary" style="display:inline-flex;align-items:center;gap:5px;">${isEdit
-        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Save'
-        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create'}</button>
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>' + t('calendar.save')
+        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' + t('calendar.create')}</button>
     </div>
   </div>`;
 
@@ -2942,7 +2949,7 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
   });
   document.getElementById('cal-f-del')?.addEventListener('click', async () => {
     const name = existing && existing.summary ? `"${existing.summary}"` : 'this event';
-    const ok = await uiModule.styledConfirm(`Delete ${name}?`, { confirmText: 'Delete', danger: true });
+    const ok = await uiModule.styledConfirm(t('calendar.delete_confirm').replace('{title}', name), { confirmText: t('calendar.delete_event'), danger: true });
     if (!ok) return;
     try { await _deleteEvent(existing.uid); _render(); }
     catch (e) { uiModule.showToast('Failed to delete'); }
@@ -3038,7 +3045,7 @@ function _showEventForm(existing, defaultDate, defaultEndDate) {
     const clockEl = document.getElementById('cal-hero-clock');
     const ampmEl = document.getElementById('cal-hero-ampm');
     const dateEl = document.getElementById('cal-hero-date');
-    if (clockEl) clockEl.innerHTML = allday ? '<span class="cal-hero-clock-allday">All day</span>' : _clockFace(startVal);
+    if (clockEl) clockEl.innerHTML = allday ? '<span class="cal-hero-clock-allday">' + t('calendar.all_day') + '</span>' : _clockFace(startVal);
     if (ampmEl) ampmEl.textContent = allday ? '' : _clockAmpm(startVal);
     if (dateEl) dateEl.textContent = _clockDate(dateVal);
   };

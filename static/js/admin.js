@@ -5,6 +5,7 @@ import uiModule from './ui.js';
 import settingsModule from './settings.js';
 import { providerLogo } from './providers.js';
 import { sortModelObjects } from './modelSort.js';
+import { t } from './i18n.js';
 
 let initialized = false;
 let modalEl = null;
@@ -20,22 +21,22 @@ function esc(s) { return uiModule.esc(s); }
    USERS TAB
    ═══════════════════════════════════════════ */
 const PRIV_LABELS = {
-  can_use_agent: 'Agent mode',
-  can_use_browser: 'Browser automation',
-  can_use_bash: 'Shell / Python / Files',
-  can_use_documents: 'Document editor',
-  can_use_research: 'Deep research',
-  can_generate_images: 'Image generation',
-  can_manage_memory: 'Memory & skills',
+  can_use_agent: 'admin.priv.can_use_agent',
+  can_use_browser: 'admin.priv.can_use_browser',
+  can_use_bash: 'admin.priv.can_use_bash',
+  can_use_documents: 'admin.priv.can_use_documents',
+  can_use_research: 'admin.priv.can_use_research',
+  can_generate_images: 'admin.priv.can_generate_images',
+  can_manage_memory: 'admin.priv.can_manage_memory',
 };
 
 async function loadUsers() {
   const list = el('adm-userList');
   try {
     const res = await fetch('/api/auth/users', { credentials: 'same-origin' });
-    if (res.status === 401 || res.status === 403) { list.innerHTML = '<div class="admin-empty">Access denied</div>'; return; }
+    if (res.status === 401 || res.status === 403) { list.innerHTML = '<div class="admin-empty">' + t('admin.access_denied') + '</div>'; return; }
     const data = await res.json();
-    if (!data.users || data.users.length === 0) { list.innerHTML = '<div class="admin-empty">No users found</div>'; return; }
+    if (!data.users || data.users.length === 0) { list.innerHTML = '<div class="admin-empty">' + t('admin.no_users') + '</div>'; return; }
     list.innerHTML = '';
     data.users.forEach(u => {
       const row = document.createElement('div');
@@ -50,12 +51,12 @@ async function loadUsers() {
           <div style="width:28px;height:28px;border-radius:50%;background:color-mix(in srgb, var(--accent) 20%, var(--panel));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;color:var(--accent);">${esc(initial)}</div>
           <div>
             <span class="admin-user-name">${esc(u.username)}</span>
-            ${u.is_admin ? '<span class="admin-badge" style="margin-left:6px;">ADMIN</span>' : '<span style="font-size:10px;opacity:0.4;display:block;">Click to manage privileges</span>'}
+            ${u.is_admin ? '<span class="admin-badge" style="margin-left:6px;">ADMIN</span>' : '<span style="font-size:10px;opacity:0.4;display:block;">' + t('admin.click_manage_privileges') + '</span>'}
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="admin-btn-sm" data-adm-rename-user="${esc(u.username)}" style="font-size:11px;">Rename</button>
-          ${u.is_admin ? '' : `<button class="admin-btn-delete" data-adm-del-user="${esc(u.username)}" style="font-size:11px;">Remove</button>`}
+          <button class="admin-btn-sm" data-adm-rename-user="${esc(u.username)}" style="font-size:11px;">${t('common.rename')}</button>
+          ${u.is_admin ? '' : `<button class="admin-btn-delete" data-adm-del-user="${esc(u.username)}" style="font-size:11px;">${t('common.remove')}</button>`}
           ${u.is_admin ? '' : '<svg class="admin-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transition:transform 0.2s,opacity 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>'}
         </div>
       `;
@@ -68,21 +69,21 @@ async function loadUsers() {
         privPanel.style.cssText = 'padding:8px 0 4px;border-top:1px solid var(--border);margin-top:8px;';
 
         // Boolean toggles
-        let html = '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.35;font-weight:600;margin-bottom:4px;">Features</div>';
+        let html = '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.35;font-weight:600;margin-bottom:4px;">' + t('admin.features_heading') + '</div>';
         for (const [key, label] of Object.entries(PRIV_LABELS)) {
           const checked = u.privileges && u.privileges[key] ? 'checked' : '';
           html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;">
-            <span style="font-size:12px;">${label}</span>
+            <span style="font-size:12px;">${t(label)}</span>
             <label class="admin-switch" style="transform:scale(0.85);"><input type="checkbox" data-priv="${key}" data-user="${esc(u.username)}" ${checked}><span class="admin-slider"></span></label>
           </div>`;
         }
         // Rate limit
-        html += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.35;font-weight:600;margin:10px 0 4px;">Limits</div>';
+        html += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.35;font-weight:600;margin:10px 0 4px;">' + t('admin.limits_heading') + '</div>';
         const maxMsg = (u.privileges && u.privileges.max_messages_per_day) || 0;
         html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;">
           <div>
-            <span style="font-size:12px;">Daily message limit</span>
-            <div style="font-size:10px;opacity:0.4;">0 = no limit</div>
+            <span style="font-size:12px;">${t('admin.daily_message_limit')}</span>
+            <div style="font-size:10px;opacity:0.4;">${t('admin.no_limit_hint')}</div>
           </div>
           <input type="number" min="0" value="${maxMsg}" data-priv="max_messages_per_day" data-user="${esc(u.username)}" style="width:70px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-size:12px;text-align:center;">
         </div>`;
@@ -91,15 +92,15 @@ async function loadUsers() {
         const allEmpty = allowedSet.size === 0;
         html += `<div style="padding:4px 0;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <span style="font-size:12px;">Allowed models</span>
+            <span style="font-size:12px;">${t('admin.allowed_models')}</span>
             <div style="display:flex;gap:8px;">
-              <a href="#" class="priv-models-all" data-user="${esc(u.username)}" style="font-size:10px;opacity:0.5;">All</a>
-              <a href="#" class="priv-models-none" data-user="${esc(u.username)}" style="font-size:10px;opacity:0.5;">None</a>
+              <a href="#" class="priv-models-all" data-user="${esc(u.username)}" style="font-size:10px;opacity:0.5;">${t('admin.all')}</a>
+              <a href="#" class="priv-models-none" data-user="${esc(u.username)}" style="font-size:10px;opacity:0.5;">${t('common.none')}</a>
             </div>
           </div>
-          <div style="font-size:10px;opacity:0.4;margin-bottom:4px;">${allEmpty ? 'All models allowed (no restrictions)' : allowedSet.size + ' model(s) allowed'}</div>
+          <div style="font-size:10px;opacity:0.4;margin-bottom:4px;">${allEmpty ? t('admin.all_models_allowed') : t('admin.models_allowed_count').replace('{n}', allowedSet.size)}</div>
           <div class="priv-models-list" data-user="${esc(u.username)}">
-            <span style="opacity:0.4;font-size:11px;">Loading models...</span>
+            <span style="opacity:0.4;font-size:11px;">${t('admin.loading_models')}</span>
           </div>
         </div>`;
         privPanel.innerHTML = html;
@@ -138,7 +139,7 @@ async function loadUsers() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ [key]: value }),
               });
-            } catch (e) { uiModule.showError('Failed to update privilege'); }
+            } catch (e) { uiModule.showError(t('admin.failed_update_privilege')); }
           };
           if (input.type === 'checkbox') input.addEventListener('change', handler);
           else input.addEventListener('change', handler);
@@ -153,7 +154,7 @@ async function loadUsers() {
           const oldUsername = renameBtn.dataset.admRenameUser;
           const next = await uiModule.styledPrompt(`Rename "${oldUsername}"`, {
             defaultValue: oldUsername,
-            placeholder: 'New username',
+            placeholder: t('admin.placeholder_new_user'),
             confirmText: 'Rename',
           });
           const username = (next || '').trim();
@@ -167,7 +168,7 @@ async function loadUsers() {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-              uiModule.showError(data.detail || 'Failed to rename user');
+              uiModule.showError(data.detail || t('admin.failed_rename_user'));
               return;
             }
             if (data.renamed_self) {
@@ -176,7 +177,7 @@ async function loadUsers() {
             }
             loadUsers();
           } catch (err) {
-            uiModule.showError('Failed to rename user');
+            uiModule.showError(t('admin.failed_rename_user'));
           }
         });
       }
@@ -190,7 +191,7 @@ async function loadUsers() {
           if (!await uiModule.styledConfirm(`Remove user "${username}"?`, { confirmText: 'Remove', danger: true })) return;
           const res = await fetch('/api/auth/users', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username }) });
           if (res.ok) loadUsers();
-          else uiModule.showError('Failed to delete user');
+          else uiModule.showError(t('admin.failed_delete_user'));
         });
       }
 
@@ -235,7 +236,7 @@ async function _loadModelsForUser(username, allowedSet, privPanel) {
       // If all are checked, send empty array (= no restrictions)
       const value = checked.length === allModels.length ? [] : checked;
       const hint = privPanel.querySelector('.priv-models-list[data-user]')?.previousElementSibling?.querySelector('div[style*="opacity"]');
-      if (hint) hint.textContent = value.length === 0 ? 'All models allowed (no restrictions)' : value.length + ' model(s) allowed';
+      if (hint) hint.textContent = value.length === 0 ? t('admin.all_models_allowed') : t('admin.models_allowed_count').replace('{n}', value.length);
       fetch(`/api/auth/users/${encodeURIComponent(username)}/privileges`, {
         method: 'PUT', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
@@ -282,15 +283,15 @@ function initAddUser() {
     const username = el('adm-newUsername').value.trim();
     const password = el('adm-newPassword').value;
     const is_admin = el('adm-newIsAdmin').checked;
-    if (!username) { msg.textContent = 'Username required'; msg.className = 'admin-error'; return; }
-    if (password.length < 8) { msg.textContent = 'Password must be at least 8 characters'; msg.className = 'admin-error'; return; }
+    if (!username) { msg.textContent = t('admin.username_required'); msg.className = 'admin-error'; return; }
+    if (password.length < 8) { msg.textContent = t('admin.password_min_8'); msg.className = 'admin-error'; return; }
     el('adm-addBtn').disabled = true;
     try {
       const res = await fetch('/api/auth/users', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, is_admin }) });
       const data = await res.json();
-      if (res.ok) { msg.textContent = 'User created'; msg.className = 'admin-success'; el('adm-newUsername').value = ''; el('adm-newPassword').value = ''; el('adm-newIsAdmin').checked = false; loadUsers(); }
-      else { msg.textContent = data.detail || 'Failed'; msg.className = 'admin-error'; }
-    } catch (e) { msg.textContent = 'Request failed'; msg.className = 'admin-error'; }
+      if (res.ok) { msg.textContent = t('admin.user_created'); msg.className = 'admin-success'; el('adm-newUsername').value = ''; el('adm-newPassword').value = ''; el('adm-newIsAdmin').checked = false; loadUsers(); }
+      else { msg.textContent = data.detail || t('common.failed'); msg.className = 'admin-error'; }
+    } catch (e) { msg.textContent = t('admin.request_failed'); msg.className = 'admin-error'; }
     el('adm-addBtn').disabled = false;
   });
 }
@@ -422,7 +423,7 @@ async function loadEndpoints() {
               ${hasModels ? '<span style="font-size:10px;opacity:0.4;">Click to manage models</span>' : ''}
             </div>
             <div style="display:flex;gap:4px;align-items:center;">
-              <button class="admin-btn-sm" data-adm-toggle-ep="${ep.id}">${ep.is_enabled ? 'Disable' : 'Enable'}</button>
+              <button class="admin-btn-sm" data-adm-toggle-ep="${ep.id}">${ep.is_enabled ? t('common.disable') : t('common.enable')}</button>
               <button class="admin-btn-delete" data-adm-del-ep="${ep.id}" data-adm-ep-online="${ep.online ? '1' : '0'}">Delete</button>
               ${hasModels ? '<svg class="admin-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3;transition:transform 0.2s,opacity 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>' : ''}
             </div>
@@ -496,11 +497,11 @@ async function loadEndpoints() {
             var depData = await depRes.json();
             deps = depData.dependents || [];
           } catch (e) { /* proceed without warning */ }
-          var msg = 'Delete this endpoint?';
+          var msg = t('admin.delete_endpoint_confirm');
           if (deps.length) {
             msg += '\n\nThe following settings use this endpoint and will be reset:\n— ' + deps.join('\n— ');
           }
-          if (!await uiModule.styledConfirm(msg, { confirmText: 'Delete', danger: true })) return;
+          if (!await uiModule.styledConfirm(msg, { confirmText: t('common.delete'), danger: true })) return;
         }
         // Optimistic: remove from UI immediately
         const row = btn.closest('[data-adm-ep-id]');
@@ -543,7 +544,7 @@ async function loadEndpoints() {
           let _modelsSpin = null;
           const _ld = document.createElement('span');
           _ld.style.cssText = 'opacity:0.55;font-size:11px;display:inline-flex;align-items:center;gap:8px;';
-          _ld.appendChild(document.createTextNode('Loading models…'));
+          _ld.appendChild(document.createTextNode(t('admin.loading_models_short')));
           try {
             const _sp = (await import('./spinner.js')).default;
             _modelsSpin = _sp.createWhirlpool(14);
@@ -774,12 +775,12 @@ function initEndpointForm() {
       msg.textContent = ''; msg.className = '';
       const rawUrl = (urlInput.value || provider.value).trim();
       const apiKey = el('adm-epApiKey').value.trim();
-      if (!rawUrl) { msg.textContent = 'Select a provider or enter a base URL'; msg.className = 'admin-error'; return; }
+      if (!rawUrl) { msg.textContent = t('admin.select_provider_or_url'); msg.className = 'admin-error'; return; }
       if (provider.value && !apiKey) { msg.textContent = 'API key is required for cloud providers'; msg.className = 'admin-error'; return; }
       const url = provider.value && rawUrl === provider.value ? rawUrl : _normalizeBaseUrl(rawUrl);
       apiTestController = new AbortController();
       apiTestBtn.disabled = true;
-      apiTestBtn.textContent = 'Testing...';
+      apiTestBtn.textContent = t('admin.testing');
       if (apiCancelTestBtn) apiCancelTestBtn.classList.remove('hidden');
       try {
         const fd = new FormData();
@@ -795,16 +796,16 @@ function initEndpointForm() {
         _renderEndpointTestResult(msg, res, d);
       } catch (e) {
         if (e && e.name === 'AbortError') {
-          msg.textContent = 'Test canceled';
+          msg.textContent = t('admin.test_canceled');
           msg.className = '';
         } else {
-          msg.textContent = 'Test failed: ' + (e && e.message ? e.message : 'request failed');
+          msg.textContent = t('admin.test_failed').replace('{detail}', e && e.message ? e.message : 'request failed');
           msg.className = 'admin-error';
         }
       }
       apiTestController = null;
       apiTestBtn.disabled = false;
-      apiTestBtn.textContent = 'Test';
+      apiTestBtn.textContent = t('common.test');
       if (apiCancelTestBtn) apiCancelTestBtn.classList.add('hidden');
     });
   }
@@ -824,7 +825,7 @@ function initEndpointForm() {
     // Normalize URL (fix typos, add /v1, strip wrong paths)
     const url = provider.value && rawUrl === provider.value ? rawUrl : _normalizeBaseUrl(rawUrl);
     const btn = el('adm-epAddBtn');
-    btn.disabled = true; btn.textContent = 'Adding...';
+    btn.disabled = true; btn.textContent = t('admin.adding');
     try {
       const fd = new FormData();
       fd.append('base_url', url);
@@ -857,8 +858,8 @@ function initEndpointForm() {
           msg.className = 'admin-success';
         }
       } else { msg.textContent = d.detail || 'Failed'; msg.className = 'admin-error'; }
-    } catch (e) { msg.textContent = 'Request failed'; msg.className = 'admin-error'; }
-    btn.disabled = false; btn.textContent = 'Add';
+    } catch (e) { msg.textContent = t('admin.request_failed'); msg.className = 'admin-error'; }
+    btn.disabled = false; btn.textContent = t('common.add');
   });
 
   // Local "Add" button — sibling form for self-hosted base URLs.
@@ -924,7 +925,7 @@ function initEndpointForm() {
             : 'Added (offline — will retry on next load)';
           msg.className = d.online ? 'admin-success' : 'admin-error';
         } else { msg.textContent = d.detail || 'Failed'; msg.className = 'admin-error'; }
-      } catch (e) { msg.textContent = 'Request failed'; msg.className = 'admin-error'; }
+      } catch (e) { msg.textContent = t('admin.request_failed'); msg.className = 'admin-error'; }
       localAddBtn.disabled = false; localAddBtn.textContent = 'Add';
     });
   }
@@ -1144,6 +1145,27 @@ const MCP_PRESETS = [
     help: "1. Go to todoist.com > Settings > Integrations > Developer\n2. Copy your API token" },
 ];
 // ── Built-in tools management ──
+const _TOOL_CAT_I18N = {
+  Code: 'settings.tools.cat.code',
+  Search: 'settings.tools.cat.search',
+  Documents: 'settings.tools.cat.documents',
+  Media: 'settings.tools.cat.media',
+  Knowledge: 'settings.tools.cat.knowledge',
+  'Multi-Agent': 'settings.tools.cat.multi_agent',
+  Sessions: 'settings.tools.cat.sessions',
+  System: 'settings.tools.cat.system',
+  Other: 'settings.tools.cat.other',
+};
+function _toolCatLabel(cat) {
+  const key = _TOOL_CAT_I18N[cat];
+  return key ? t(key) : cat;
+}
+function _toolMeta(id, field, fallback) {
+  const key = `settings.tools.item.${id}.${field}`;
+  const v = t(key);
+  return v !== key ? v : fallback;
+}
+
 const TOOL_META = {
   bash:              { name: 'Shell',            desc: 'Execute bash commands',           cat: 'Code',       ctx: '~200' },
   python:            { name: 'Python',           desc: 'Run Python scripts',              cat: 'Code',       ctx: '~200' },
@@ -1186,15 +1208,15 @@ async function loadBuiltinTools() {
     const res = await fetch('/api/tools', { credentials: 'same-origin' });
     const data = await res.json();
     const tools = data.tools || [];
-    if (!tools.length) { list.innerHTML = '<div class="admin-empty">No tools found</div>'; return; }
+    if (!tools.length) { list.innerHTML = '<div class="admin-empty">' + t('settings.tools.no_tools') + '</div>'; return; }
 
     // Group by category
     const groups = {};
-    for (const t of tools) {
-      const meta = TOOL_META[t.id] || { name: t.id, desc: '', cat: 'Other', ctx: '?' };
+    for (const tool of tools) {
+      const meta = TOOL_META[tool.id] || { name: tool.id, desc: '', cat: 'Other', ctx: '?' };
       const cat = meta.cat;
       if (!groups[cat]) groups[cat] = [];
-      groups[cat].push({ ...t, ...meta });
+      groups[cat].push({ ...tool, ...meta });
     }
 
     // Category order
@@ -1209,7 +1231,7 @@ async function loadBuiltinTools() {
       const allEnabled = enabledCount === totalCount;
       html += `<div class="admin-tool-category">
         <div class="admin-tool-cat-header" data-tool-cat="${catId}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
-          <span>${esc(cat)}</span>
+          <span>${esc(_toolCatLabel(cat))}</span>
           <span style="display:flex;align-items:center;gap:6px;" class="admin-tool-cat-right">
             <span class="admin-tool-cat-count" style="font-size:10px;opacity:0.5;">${enabledCount}/${totalCount}</span>
             <label class="admin-switch" style="flex-shrink:0;">
@@ -1220,16 +1242,18 @@ async function loadBuiltinTools() {
           </span>
         </div>
         <div class="admin-tool-cat-body hidden" id="${catId}">`;
-      for (const t of items) {
+      for (const tool of items) {
+        const toolName = _toolMeta(tool.id, 'name', tool.name);
+        const toolDesc = _toolMeta(tool.id, 'desc', tool.desc);
         html += `
         <div class="admin-tool-row">
           <div class="admin-tool-info">
-            <span class="admin-tool-name">${esc(t.name)}</span>
-            <span class="admin-tool-desc">${esc(t.desc)}</span>
+            <span class="admin-tool-name">${esc(toolName)}</span>
+            <span class="admin-tool-desc">${esc(toolDesc)}</span>
           </div>
-          <span class="admin-tool-ctx" title="Approximate context tokens used">${esc(t.ctx)}</span>
+          <span class="admin-tool-ctx" title="${esc(t('settings.tools.ctx_hint'))}">${esc(tool.ctx)}</span>
           <label class="admin-switch" style="flex-shrink:0;">
-            <input type="checkbox" data-tool-id="${esc(t.id)}" ${t.enabled ? 'checked' : ''}>
+            <input type="checkbox" data-tool-id="${esc(tool.id)}" ${tool.enabled ? 'checked' : ''}>
             <span class="admin-slider"></span>
           </label>
         </div>`;
@@ -1356,7 +1380,7 @@ async function loadMcpServers() {
     });
     list.querySelectorAll('[data-adm-mcp-delete]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (!await uiModule.styledConfirm('Delete this MCP server?', { confirmText: 'Delete', danger: true })) return;
+        if (!await uiModule.styledConfirm(t('admin.delete_mcp_confirm'), { confirmText: t('common.delete'), danger: true })) return;
         await fetch(`/api/mcp/servers/${btn.dataset.admMcpDelete}`, { method: 'DELETE', credentials: 'same-origin' });
         loadMcpServers();
       });
@@ -1793,7 +1817,7 @@ function initTokenForm() {
       const data = await res.json();
       if (res.ok) { el('adm-tokenValue').textContent = data.token; reveal.style.display = ''; el('adm-tokenName').value = ''; loadTokens(); }
       else { msg.textContent = data.detail || 'Failed'; msg.className = 'admin-error'; }
-    } catch (e) { msg.textContent = 'Request failed'; msg.className = 'admin-error'; }
+    } catch (e) { msg.textContent = t('admin.request_failed'); msg.className = 'admin-error'; }
   });
   el('adm-tokenCopyBtn').addEventListener('click', () => {
     const val = el('adm-tokenValue').textContent;
@@ -1959,7 +1983,7 @@ function initBackup() {
   el('adm-exportDataBtn').addEventListener('click', async () => {
     const btn = el('adm-exportDataBtn');
     const msg = el('adm-backupMsg');
-    btn.disabled = true; btn.textContent = 'Exporting...'; msg.textContent = '';
+    btn.disabled = true; btn.textContent = t('settings.system.exporting'); msg.textContent = '';
     try {
       const res = await fetch('/api/export', { credentials: 'same-origin' });
       if (!res.ok) throw new Error('Export failed');
@@ -1972,9 +1996,9 @@ function initBackup() {
       a.download = filename;
       a.click();
       URL.revokeObjectURL(a.href);
-      msg.textContent = 'Export downloaded.'; msg.className = 'admin-success';
-    } catch (e) { msg.textContent = 'Export failed: ' + e.message; msg.className = 'admin-error'; }
-    btn.disabled = false; btn.textContent = 'Export Data';
+      msg.textContent = t('settings.system.export_done'); msg.className = 'admin-success';
+    } catch (e) { msg.textContent = t('settings.system.export_failed') + ': ' + e.message; msg.className = 'admin-error'; }
+    btn.disabled = false; btn.textContent = t('settings.system.export');
   });
 
   const fileInput = el('adm-importFile');
@@ -1984,7 +2008,7 @@ function initBackup() {
     if (!file) return;
     const msg = el('adm-backupMsg');
     const btn = el('adm-importDataBtn');
-    btn.disabled = true; btn.textContent = 'Importing...'; msg.textContent = '';
+    btn.disabled = true; btn.textContent = t('settings.system.importing'); msg.textContent = '';
     try {
       const text = await file.text();
       const data = JSON.parse(text);
@@ -1995,12 +2019,12 @@ function initBackup() {
       });
       const result = await res.json();
       if (res.ok && result.ok) {
-        msg.textContent = result.message || 'Import successful.'; msg.className = 'admin-success';
+        msg.textContent = result.message || t('settings.system.import_done'); msg.className = 'admin-success';
       } else {
-        msg.textContent = result.message || result.detail || 'Import failed'; msg.className = 'admin-error';
+        msg.textContent = result.message || result.detail || t('settings.system.import_failed'); msg.className = 'admin-error';
       }
-    } catch (e) { msg.textContent = 'Import failed: ' + e.message; msg.className = 'admin-error'; }
-    btn.disabled = false; btn.textContent = 'Import Data';
+    } catch (e) { msg.textContent = t('settings.system.import_failed') + ': ' + e.message; msg.className = 'admin-error'; }
+    btn.disabled = false; btn.textContent = t('settings.system.import');
   });
 }
 
@@ -2010,31 +2034,36 @@ function initDangerZone() {
   // via data-wipe-kind; one delegated handler handles double-confirm,
   // POSTs to /api/admin/wipe/{kind}, and writes the result.
   const _LABELS = {
-    chats: 'chats', memory: 'memory entries', skills: 'skills',
-    notes: 'notes', tasks: 'tasks', documents: 'documents',
-    gallery: 'gallery images', calendar: 'calendar items',
+    chats: 'settings.wipe.label.chats',
+    memory: 'settings.wipe.label.memory',
+    skills: 'settings.wipe.label.skills',
+    notes: 'settings.wipe.label.notes',
+    tasks: 'settings.wipe.label.tasks',
+    documents: 'settings.wipe.label.documents',
+    gallery: 'settings.wipe.label.gallery',
+    calendar: 'settings.wipe.label.calendar',
   };
   const _wipeMsg = el('adm-wipeMsg');
   modalEl.querySelectorAll('[data-wipe-kind]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const kind = btn.dataset.wipeKind;
-      const label = _LABELS[kind] || kind;
-      if (!await uiModule.styledConfirm(`Wipe ALL ${label}? This cannot be undone.`, { confirmText: 'Wipe', danger: true })) return;
-      if (!await uiModule.styledConfirm(`Really wipe every one of your ${label}?`, { confirmText: 'Yes, wipe everything', danger: true })) return;
-      btn.disabled = true; const prev = btn.textContent; btn.textContent = 'Wiping…';
+      const label = t(_LABELS[kind] || kind);
+      if (!await uiModule.styledConfirm(t('settings.wipe.confirm_all').replace('{label}', label), { confirmText: t('settings.wipe.confirm_btn'), danger: true })) return;
+      if (!await uiModule.styledConfirm(t('settings.wipe.confirm_really').replace('{label}', label), { confirmText: t('settings.wipe.confirm_yes'), danger: true })) return;
+      btn.disabled = true; const prev = btn.textContent; btn.textContent = t('settings.wipe.wiping');
       if (_wipeMsg) { _wipeMsg.textContent = ''; _wipeMsg.className = ''; }
       try {
         const res = await fetch(`/api/admin/wipe/${kind}`, { method: 'DELETE', credentials: 'same-origin' });
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
-          if (_wipeMsg) { _wipeMsg.textContent = `Wiped ${data.count ?? 0} ${label}.`; _wipeMsg.className = 'admin-success'; }
+          if (_wipeMsg) { _wipeMsg.textContent = t('settings.wipe.done').replace('{count}', String(data.count ?? 0)).replace('{label}', label); _wipeMsg.className = 'admin-success'; }
         } else {
-          if (_wipeMsg) { _wipeMsg.textContent = data.detail || 'Failed'; _wipeMsg.className = 'admin-error'; }
+          if (_wipeMsg) { _wipeMsg.textContent = data.detail || t('settings.wipe.failed'); _wipeMsg.className = 'admin-error'; }
         }
       } catch (e) {
-        if (_wipeMsg) { _wipeMsg.textContent = 'Request failed: ' + e.message; _wipeMsg.className = 'admin-error'; }
+        if (_wipeMsg) { _wipeMsg.textContent = t('settings.wipe.failed') + ': ' + e.message; _wipeMsg.className = 'admin-error'; }
       }
-      btn.disabled = false; btn.textContent = prev;
+      btn.disabled = false; btn.textContent = t('settings.wipe.btn');
     });
   });
 }

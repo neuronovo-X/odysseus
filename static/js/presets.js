@@ -4,6 +4,8 @@
  * Preset management
  */
 
+import { t } from './i18n.js';
+
 let API_BASE = '';
 let selectedPreset = null;
 let presets = {};
@@ -175,7 +177,7 @@ function initEnabledToggle() {
   if (tokensSlider && tokensValue) {
     tokensSlider.addEventListener('input', () => {
       const v = parseInt(tokensSlider.value);
-      tokensValue.textContent = v > 8192 ? 'No limit' : v.toLocaleString();
+      tokensValue.textContent = v > 8192 ? t('preset.no_limit') : v.toLocaleString();
     });
   }
 }
@@ -214,7 +216,7 @@ function initNameDropdown() {
       const nameRow = document.getElementById('char-name-row');
       if (nameRow) nameRow.style.display = '';
       if (tempInput) { tempInput.value = 1.0; if (tempValue) tempValue.textContent = '1.0'; tempInput.dispatchEvent(new Event('input')); }
-      if (tokensInput) { tokensInput.value = 8448; if (tokensValue) tokensValue.textContent = 'No limit'; tokensInput.dispatchEvent(new Event('input')); }
+      if (tokensInput) { tokensInput.value = 8448; if (tokensValue) tokensValue.textContent = t('preset.no_limit'); tokensInput.dispatchEvent(new Event('input')); }
       if (delBtn) delBtn.style.display = 'none';
       return;
     }
@@ -303,7 +305,7 @@ function _tryLoadTemplate(name) {
   if (tokensInput) {
     const v = tmpl.max_tokens || 0;
     tokensInput.value = v === 0 ? 8448 : v;
-    if (tokensValue) tokensValue.textContent = (v === 0 || v > 8192) ? 'No limit' : v.toLocaleString();
+    if (tokensValue) tokensValue.textContent = (v === 0 || v > 8192) ? t('preset.no_limit') : v.toLocaleString();
     tokensInput.dispatchEvent(new Event('input'));
   }
   const delBtn = document.getElementById('char-delete-template-btn');
@@ -595,7 +597,7 @@ export function openCustomPresetModal() {
     const saved = savedConfig.max_tokens || 0;
     tokensInput.value = saved === 0 ? 8448 : saved;
     const tkv = document.getElementById('tokens-value');
-    if (tkv) tkv.textContent = (saved === 0 || saved > 8192) ? 'No limit' : parseInt(saved).toLocaleString();
+    if (tkv) tkv.textContent = (saved === 0 || saved > 8192) ? t('preset.no_limit') : parseInt(saved).toLocaleString();
   }
   if (promptInput) promptInput.value = savedConfig.system_prompt || '';
 
@@ -626,15 +628,11 @@ export function openCustomPresetModal() {
     const activeTab = document.querySelector('.preset-tab.active')?.dataset.chartab || 'inject';
     let label;
     if (activeTab === 'group') {
-      label = 'Start Group';
+      label = t('preset.start_group');
     } else if (activeTab === 'inject') {
-      // Inject tab = a plain tuned "prompt" chat (prefix/suffix + temp/tokens),
-      // no persona.
-      label = 'Start Prompt';
+      label = t('preset.start_prompt');
     } else {
-      // Character/persona tab. "Save & " prefix when the user edited a template,
-      // so it's clear the edit is being saved on start.
-      label = changed ? 'Save & Start Persona' : 'Start Persona';
+      label = changed ? t('preset.save_start_persona') : t('preset.start_persona');
     }
     btn.textContent = label;
     // Show a "Cancel" button next to Start when the active tab's feature is
@@ -645,7 +643,7 @@ export function openCustomPresetModal() {
       const groupOn = !!(window.groupModule && window.groupModule.isActive && window.groupModule.isActive());
       const featOn = activeTab === 'group' ? groupOn : !!(presets.custom && presets.custom.enabled);
       cancelBtn.style.display = featOn ? '' : 'none';
-      cancelBtn.textContent = activeTab === 'group' ? 'Cancel group' : 'Cancel';
+      cancelBtn.textContent = activeTab === 'group' ? t('preset.cancel_group') : t('common.cancel');
     }
     // Reset only makes sense on the character tab (it resets the persona).
     if (resetBtn) resetBtn.style.display = (changed && activeTab === 'character') ? '' : 'none';

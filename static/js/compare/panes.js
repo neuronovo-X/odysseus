@@ -11,6 +11,7 @@ import Storage from '../storage.js';
 import uiModule from '../ui.js';
 import spinnerModule from '../spinner.js';
 import { bindMenuDismiss } from '../escMenuStack.js';
+import { t } from '../i18n.js';
 
 var escapeHtml = uiModule.esc;
 
@@ -90,7 +91,7 @@ async function rerollPane(paneIdx, overrideTimeout) {
   hist.innerHTML = '';
   const userMsg = document.createElement('div');
   userMsg.className = 'msg msg-user';
-  userMsg.innerHTML = '<div class="role">You</div><div class="body">' + escapeHtml(firstUserText) + '</div>';
+  userMsg.innerHTML = '<div class="role">' + t('chat.role_you') + '</div><div class="body">' + escapeHtml(firstUserText) + '</div>';
   hist.appendChild(userMsg);
 
   // Reset badge and timer

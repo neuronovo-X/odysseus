@@ -43,6 +43,7 @@ import spinnerModule from './js/spinner.js';
 import { initKeyboardShortcuts } from './js/keyboard-shortcuts.js';
 import { initSidebarLayout, syncRailSide } from './js/sidebar-layout.js';
 import { initSectionCollapse, initSectionDrag } from './js/section-management.js';
+import { initI18n, t } from './js/i18n.js';
 
 const API_BASE = window.location.origin;
 window.themeModule = themeModule;
@@ -335,7 +336,7 @@ function initializeEventListeners() {
       const transcript = _serializeChatTranscript();
       // A new/empty chat has nothing to copy — don't write an empty string and
       // falsely report "Copied".
-      if (!transcript.trim()) { uiModule.showToast('Nothing to copy yet'); return; }
+      if (!transcript.trim()) { uiModule.showToast(t('chat.nothing_to_copy')); return; }
       await uiModule.copyToClipboard(transcript);
     });
   }
@@ -384,10 +385,10 @@ function initializeEventListeners() {
         if (!res.ok) throw new Error('Failed');
         const doc = await res.json();
         if (documentModule) documentModule.loadDocument(doc.id);
-        uiModule.showToast('Saved to documents');
+        uiModule.showToast(t('chat.saved_docs'));
       } catch (err) {
         console.error('Save to docs failed:', err);
-        uiModule.showError('Failed to save to documents');
+        uiModule.showError(t('chat.save_docs_failed'));
       }
     });
   }
@@ -434,7 +435,7 @@ function initializeEventListeners() {
           const _m = sessionModule.getSessions().find(s => s.id === sid);
           if (_m) _m.name = newName;
           metaEl.textContent = newName;
-          uiModule.showToast('Renamed');
+          uiModule.showToast(t('chat.renamed'));
           sessionModule.loadSessions();
         } else {
           metaEl.textContent = origText;
@@ -1561,15 +1562,17 @@ function initializeEventListeners() {
     saveToggleState(state);
   }
 
-  const TOOL_TOGGLE_TOAST_LABELS = {
-    web: 'Web search',
-    bash: 'Shell',
+  const TOOL_TOGGLE_TOAST_KEYS = {
+    web: 'chat.tool_web',
+    bash: 'chat.tool_shell',
   };
 
   function showToolToggleToast(stateKey, active) {
-    const label = TOOL_TOGGLE_TOAST_LABELS[stateKey];
-    if (!label || !uiModule?.showToast) return;
-    uiModule.showToast(`${label} ${active ? 'on' : 'off'}`, 1800);
+    const key = TOOL_TOGGLE_TOAST_KEYS[stateKey];
+    if (!key || !uiModule?.showToast) return;
+    const tool = t(key);
+    const msg = (active ? t('chat.tool_on') : t('chat.tool_off')).replace('{tool}', tool);
+    uiModule.showToast(msg, 1800);
   }
 
   function applyModeToToggles(mode) {
@@ -1619,13 +1622,14 @@ function initializeEventListeners() {
   const SPLASH_COUNT_KEY = 'odysseus-tool-splash-counts';
   const SPLASH_MAX = 2;
   const _toolSplashes = {
-    web: { role: 'Web Search', text: 'Searches the web for relevant information to include in the response. Results are fetched and summarized before the AI answers.' },
-    bash: { role: 'Shell Access', text: 'Gives the AI access to a sandboxed shell for running commands, installing packages, and executing scripts. Use with caution.' },
-    builder: { role: 'Tool Builder', text: 'Create custom mini-apps and tools the AI can use. Describe what you need and the AI will build a tool you can reuse across conversations.' },
-    research: { role: 'Deep Research', text: 'Multi-round web search with source analysis. Takes longer but produces comprehensive, well-sourced answers. Your next message will trigger a deep research cycle.' },
+    web: { roleKey: 'chat.web_search_splash', textKey: 'chat.web_search_splash_desc' },
+    bash: { roleKey: 'chat.shell_access', textKey: 'chat.shell_access_desc' },
+    builder: { roleKey: 'chat.tool_builder_splash', textKey: 'chat.tool_builder_splash_desc' },
+    research: { roleKey: 'chat.deep_research_splash', textKey: 'chat.deep_research_splash_desc' },
   };
   function _showToolSplash(key) {
-    const splash = _toolSplashes[key];
+    const spec = _toolSplashes[key];
+    const splash = spec ? { role: t(spec.roleKey), text: t(spec.textKey) } : null;
     if (!splash) return;
     // Only show the first SPLASH_MAX times per tool
     const counts = Storage.getJSON(SPLASH_COUNT_KEY, {});
@@ -2103,7 +2107,7 @@ function initializeEventListeners() {
       pickerWrap.classList.toggle('picker-auto-hidden', w < PICKER_HIDE_WIDTH);
       // Hide placeholder text
       if (textarea) {
-        textarea.setAttribute('placeholder', w < PLACEHOLDER_HIDE_WIDTH ? '' : 'Message Odysseus...');
+        textarea.setAttribute('placeholder', w < PLACEHOLDER_HIDE_WIDTH ? '' : t('chat.placeholder'));
       }
       // Hide entire bottom toolbar (tools, mode toggle) — only send button remains
       if (inputBottom) {
@@ -2267,13 +2271,13 @@ function initializeEventListeners() {
       chk.checked = !chk.checked;
       incognitoBtn.classList.toggle('active', chk.checked);
       const tipEl = el('welcome-tip');
-      incognitoBtn.title = chk.checked ? 'Disable Nobody mode' : 'Enable Nobody mode — no memory, no history saved';
+      incognitoBtn.title = chk.checked ? t('chat.incognito_disable_title') : t('chat.incognito_enable_title');
       const welcomeName = document.querySelector('.welcome-name');
       if (chk.checked) {
-        incognitoBtn.innerHTML = INCOGNITO_EYE_CLOSED + '<span class="incognito-label">Nobody</span>';
+        incognitoBtn.innerHTML = INCOGNITO_EYE_CLOSED + '<span class="incognito-label">' + t('chat.nobody') + '</span>';
         if (welcomeName) {
           welcomeName.dataset.originalHtml = welcomeName.innerHTML;
-          welcomeName.innerHTML = '<svg class="welcome-boat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="8" y1="16" x2="16" y2="8"/><line x1="8" y1="8" x2="16" y2="16"/></svg>Nobody';
+          welcomeName.innerHTML = '<svg class="welcome-boat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="8" y1="16" x2="16" y2="8"/><line x1="8" y1="8" x2="16" y2="16"/></svg>' + t('chat.nobody');
           // Restart the L→R clip-wipe reveal on the new label
           welcomeName.style.animation = 'none';
           welcomeName.offsetHeight;
@@ -2283,10 +2287,10 @@ function initializeEventListeners() {
         const welcomeSub = el('welcome-sub');
         if (welcomeSub) {
           if (!welcomeSub.dataset.originalText) welcomeSub.dataset.originalText = welcomeSub.textContent;
-          welcomeSub.textContent = "Who am I? I'm nobody.";
+          welcomeSub.textContent = t('chat.incognito_sub');
           welcomeSub.style.display = '';
         }
-        if (tipEl) { tipEl.dataset.originalTip = tipEl.textContent; tipEl.textContent = 'Temporary session \u2014 won\u2019t be saved and no memory activation.'; tipEl.style.opacity = '0.5'; tipEl.style.marginTop = '8px'; }
+        if (tipEl) { tipEl.dataset.originalTip = tipEl.textContent; tipEl.textContent = t('chat.incognito_tip'); tipEl.style.opacity = '0.5'; tipEl.style.marginTop = '8px'; }
         // Default to plain chat: disable tools visually, switch to chat mode.
         // IMPORTANT: don't overwrite the user's persisted per-mode tool prefs
         // (`web_agent`, `bash_agent`, `web_chat`, `bash_chat`). Nobody mode is
@@ -2301,7 +2305,7 @@ function initializeEventListeners() {
         ts.research = false; ts.mode = 'chat';
         Storage.setJSON(Storage.KEYS.TOGGLES, ts);
       } else {
-        incognitoBtn.innerHTML = INCOGNITO_EYE_OPEN + '<span class="incognito-label">Nobody</span>';
+        incognitoBtn.innerHTML = INCOGNITO_EYE_OPEN + '<span class="incognito-label">' + t('chat.nobody') + '</span>';
         if (welcomeName && welcomeName.dataset.originalHtml) {
           welcomeName.innerHTML = welcomeName.dataset.originalHtml;
           // Restart the L→R clip-wipe reveal on the restored label
@@ -3960,7 +3964,7 @@ function startOdysseusApp() {
     const hasModels = modelsBox && modelsBox.querySelector('.models-row');
     if (!hasModels) {
       const tip = document.getElementById('welcome-tip');
-      if (tip) tip.textContent = 'Add an AI endpoint from Settings in the sidebar, or paste an endpoint/API key into the chat.';
+      if (tip) tip.textContent = t('chat.welcome_endpoint_tip');
     }
   }).catch(() => {});
   modelsModule.refreshProviders();
@@ -4105,8 +4109,30 @@ function startOdysseusApp() {
   }
 }
 
+function _applyI18nDOM() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n); if (v !== el.dataset.i18n) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria-label');
+    if (key) el.setAttribute('aria-label', t(key));
+  });
+}
+
+const _i18nReady = initI18n('ru');
+
+function _launchApp() {
+  _i18nReady.then(() => { _applyI18nDOM(); startOdysseusApp(); });
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', startOdysseusApp, { once: true });
+  document.addEventListener('DOMContentLoaded', _launchApp, { once: true });
 } else {
-  startOdysseusApp();
+  _launchApp();
 }

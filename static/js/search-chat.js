@@ -2,6 +2,7 @@
 
 import uiModule from './ui.js';
 import sessionModule from './sessions.js';
+import { t } from './i18n.js';
 
 let API_BASE = '';
 let debounceTimer = null;
@@ -88,7 +89,7 @@ function renderResults(data, query) {
   for (const [sessionId, group] of Object.entries(grouped)) {
     html += `<div class="search-group-header">${escapeHtml(group.name)}</div>`;
     for (const item of group.items) {
-      const roleLabel = item.role === 'user' ? 'You' : 'AI';
+      const roleLabel = item.role === 'user' ? t('chat.role_you') : t('chat.role_ai');
       html += `<div class="search-result-item" data-index="${idx}" data-session="${escapeHtml(sessionId)}">
         <div class="search-result-role">${roleLabel}</div>
         <div class="search-result-snippet">${highlightMatch(item.content_snippet, query)}</div>

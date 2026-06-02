@@ -16,6 +16,9 @@ import spinnerModule from './spinner.js';
 import { openLibrary, closeLibrary, isLibraryOpen, initLibrary } from './documentLibrary.js';
 import signatureModule from './signature.js';
 import * as Modals from './modalManager.js';
+import { t } from './i18n.js';
+
+function _docUntitled() { return t('doc.untitled'); }
 
   let API_BASE = '';
   let isOpen = false;
@@ -272,7 +275,7 @@ import * as Modals from './modalManager.js';
       if (doc.sessionId && curSession && doc.sessionId !== curSession) continue;
       _anyTab = true;
       const isActive = id === activeDocId;
-      const title = doc.title || 'Untitled';
+      const title = doc.title || _docUntitled();
       const shortTitle = title.length > 24 ? title.slice(0, 22) + '...' : title;
       const menuBtn = `<button class="doc-tab-menu-btn" data-doc-id="${id}" title="Document actions"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="19" r="2.5"/></svg></button>`;
       const ver = doc.version || doc.version_count || 1;
@@ -291,7 +294,7 @@ import * as Modals from './modalManager.js';
     // Empty state (panel open, no doc yet): show a ghost "Untitled" tab so it's
     // obvious you're in a fresh document rather than staring at a blank pane.
     if (!_anyTab && isOpen && !activeDocId) {
-      html += `<div class="doc-tab active doc-tab-ghost" title="New document — start typing"><span class="doc-tab-title">Untitled</span></div>`;
+      html += `<div class="doc-tab active doc-tab-ghost" title="${t('doc.new_tab_title')}"><span class="doc-tab-title">${_docUntitled()}</span></div>`;
     }
     html += `<button class="doc-tab-new" id="doc-tab-new-btn" title="New document"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`;
     html += '</div>';
@@ -530,7 +533,7 @@ import * as Modals from './modalManager.js';
     const badge = document.getElementById('doc-version-badge');
 
     if (textarea) textarea.value = '';
-    if (textarea) textarea.placeholder = 'Start typing or paste text to create a document...';
+    if (textarea) textarea.placeholder = t('doc.placeholder');
     if (textarea) textarea.disabled = false;
     if (langSelect) langSelect.value = '';
     if (badge) badge.textContent = '';
@@ -2043,7 +2046,7 @@ import * as Modals from './modalManager.js';
       } else if (!_replyable && _copyBtn.dataset.mode !== 'copy') {
         _copyBtn.dataset.mode = 'copy';
         _copyBtn.title = 'Copy document';
-        _copyBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';
+        _copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${t('doc.copy')}`;
       }
     }
     // Standalone Export PDF / PDF-toggle icon buttons are retired — for a
@@ -3803,7 +3806,7 @@ import * as Modals from './modalManager.js';
       <input type="hidden" id="doc-title-input" value="" />
       <div class="doc-mobile-grabber" id="doc-mobile-grabber" aria-hidden="true"></div>
       <div class="doc-editor-header" id="doc-editor-actions">
-        <button id="doc-undo-btn" class="doc-action-icon-btn" title="Undo (Ctrl+Z)" style="gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span style="font-size:11px;">Undo</span></button>
+        <button id="doc-undo-btn" class="doc-action-icon-btn" title="${t('doc.undo_title')}" style="gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span style="font-size:11px;">${t('doc.undo')}</span></button>
         <button id="doc-header-preview-btn" class="doc-action-icon-btn" title="Run / Preview" style="display:none;opacity:0.85;gap:4px;"></button>
         <span id="doc-stream-indicator" class="doc-stream-indicator" style="display:none"><span class="doc-stream-dot"></span> editing</span>
         <span id="doc-version-badge" class="doc-version-badge" title="Version history" style="display:none">v1</span>
@@ -3811,7 +3814,7 @@ import * as Modals from './modalManager.js';
         <button id="doc-export-pdf-btn" class="doc-action-icon-btn" title="Export PDF" style="display:none;opacity:0.7;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg> <span style="font-size:11px;">Export PDF</span></button>
         <button id="doc-pdf-view-btn" class="doc-action-icon-btn" title="Toggle PDF view" style="display:none;opacity:0.7;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span style="font-size:11px;">PDF</span></button>
         <select id="doc-language-select" class="doc-language-select">
-          <option value="">type</option>
+          <option value="">${t('doc.type_lang')}</option>
           <option value="python">python</option>
           <option value="javascript">javascript</option>
           <option value="typescript">typescript</option>
@@ -3954,7 +3957,7 @@ import * as Modals from './modalManager.js';
            csv / html / pdf) is the one growing to fill. -->
       <div id="doc-actions-footer" class="doc-email-actions">
         <span class="email-send-split" id="doc-copy-export-split">
-          <button type="button" id="doc-footer-copy-btn" class="email-send-btn email-send-main" title="Copy document"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+          <button type="button" id="doc-footer-copy-btn" class="email-send-btn email-send-main" title="${t('doc.copy_title')}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>${t('doc.copy')}</button>
           <button type="button" id="doc-footer-export-btn" class="email-send-btn email-send-caret" title="Export as…" aria-label="Export options"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"/></svg></button>
         </span>
       </div>
@@ -3968,7 +3971,7 @@ import * as Modals from './modalManager.js';
       <div id="doc-mobile-footer" class="doc-mobile-footer">
         <button id="doc-mobile-close" class="doc-mobile-footer-btn" type="button">Unlink</button>
         <span style="flex:1"></span>
-        <button id="doc-mobile-copy" class="doc-mobile-footer-btn" type="button">Copy</button>
+        <button id="doc-mobile-copy" class="doc-mobile-footer-btn" type="button">${t('doc.copy')}</button>
       </div>
     `;
 
@@ -5997,7 +6000,7 @@ import * as Modals from './modalManager.js';
     const sessions = sessionModule ? sessionModule.getSessions() : [];
     const match = curModel && sessions.find(s => s.model === curModel && s.endpoint_url);
     const fd = new FormData();
-    fd.append('name', `Notes ${new Date().toLocaleTimeString()}`);
+    fd.append('name', `${t('nav.notes')} ${new Date().toLocaleTimeString()}`);
     fd.append('skip_validation', 'true');
     if (match) {
       fd.append('endpoint_url', match.endpoint_url);
@@ -7768,7 +7771,7 @@ import * as Modals from './modalManager.js';
 
     let items = '';
     items += `<div class="dropdown-item-compact doc-tab-action" data-action="save">${_di(_saveIco)}<span>Save</span></div>`;
-    items += `<div class="dropdown-item-compact doc-tab-action" data-action="copy">${_di(_copyIco)}<span>Copy</span></div>`;
+    items += `<div class="dropdown-item-compact doc-tab-action" data-action="copy">${_di(_copyIco)}<span>${t('doc.copy')}</span></div>`;
     if (canRun) {
       items += `<div class="dropdown-item-compact doc-tab-action" data-action="run">${_di(_runIco)}<span>Run</span></div>`;
     }
@@ -8173,13 +8176,13 @@ import * as Modals from './modalManager.js';
     // Import lives at the top of the same dropdown — it's a sibling action
     // ("bring something IN" vs "send something OUT"), and the footer was
     // getting too cramped for dedicated icons.
-    options.push({ label: 'Import from library', fn: () => openLibrary() });
-    options.push({ label: 'Import from device', fn: () => _importFromDevice(), _divider: true });
+    options.push({ label: t('doc.import_library'), fn: () => openLibrary() });
+    options.push({ label: t('doc.import_device'), fn: () => _importFromDevice(), _divider: true });
     if (isForm) options.push({ label: 'Filled PDF (.pdf)', fn: _downloadFilledPdf });
     options.push(
-      { label: 'Export Markdown', fn: exportDocument },
-      { label: 'Print as PDF', fn: exportAsPdf },
-      { label: 'Export as Word', fn: exportAsDocx },
+      { label: t('doc.export_md'), fn: exportDocument },
+      { label: t('doc.print_pdf'), fn: exportAsPdf },
+      { label: t('doc.export_word'), fn: exportAsDocx },
     );
 
     options.forEach(opt => {

@@ -5,6 +5,7 @@ import { providerLogo } from './providers.js';
 import uiModule from './ui.js';
 import settingsModule from './settings.js';
 import { sortModelObjects } from './modelSort.js';
+import { t } from './i18n.js';
 
 const API_BASE = window.location.origin;
 
@@ -265,7 +266,7 @@ function _initModelPickerDropdown() {
     listEl.classList.toggle('is-empty', !hasAnyModel);
     menu.classList.toggle('no-models', !hasAnyModel);
     if (search) {
-      search.placeholder = hasAnyModel ? 'Search models…' : 'No models connected';
+      search.placeholder = hasAnyModel ? t('models.search') : t('models.none_connected');
     }
     if (searchRow) {
       searchRow.classList.toggle('searching', !!q);
@@ -315,7 +316,7 @@ function _initModelPickerDropdown() {
       if (m.stale) {
         const badge = document.createElement('span');
         badge.className = 'model-switch-stale-badge';
-        badge.textContent = 'offline';
+        badge.textContent = t('models.offline');
         badge.style.cssText = 'font-size:10px;opacity:0.7;padding:1px 6px;border:1px solid var(--border);border-radius:8px;margin-left:6px;';
         row.appendChild(badge);
       }
@@ -685,7 +686,7 @@ export function updateModelPicker() {
     }
   }
 
-  const displayName = modelId ? modelId.split('/').pop() : 'Select model';
+  const displayName = modelId ? modelId.split('/').pop() : t('chat.select_model');
   const logo = modelId ? providerLogo(modelId) : null;
   if (logo) {
     label.innerHTML = '<span class="model-picker-logo">' + logo + '</span> ' + displayName;

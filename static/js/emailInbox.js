@@ -9,13 +9,14 @@ import { initEmailLibrary, openEmailLibrary, closeEmailLibrary, isOpen as isLibO
 import * as Modals from './modalManager.js';
 import { applyEdgeDock } from './modalSnap.js';
 import { buildReplyAllCc } from './emailLibrary/replyRecipients.js';
+import { t } from './i18n.js';
 
 const API_BASE = window.location.origin;
 const _acct = () => window.__odysseusActiveEmailAccount
   ? `&account_id=${encodeURIComponent(window.__odysseusActiveEmailAccount)}`
   : '';
 
-const _emailSetupHint = () => '<div style="margin-top:6px;opacity:0.72;font-size:11px;">Setup: <span style="color:var(--accent,var(--red));">Settings &rsaquo; Integrations</span></div>';
+const _emailSetupHint = () => '<div style="margin-top:6px;opacity:0.72;font-size:11px;">' + t('email.setup_hint') + '</div>';
 
 // SVG icons matching sessions.js dropdown style
 const _replyIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>';
@@ -323,7 +324,7 @@ export async function loadEmails(append = false) {
     console.error('Failed to load emails:', e);
     if (_listSpinner) { _listSpinner.destroy(); _listSpinner = null; }
     if (!append && list) {
-      const msg = e && e.message ? `Failed to load: ${e.message}` : 'Failed to load';
+      const msg = e && e.message ? `${t('email.load_failed')}: ${e.message}` : t('email.load_failed');
       list.innerHTML = `<div class="email-loading">${msg.replace(/&/g, '&amp;').replace(/</g, '&lt;')}${_emailSetupHint()}</div>`;
     }
   } finally {
@@ -424,7 +425,7 @@ function _renderList() {
   if (_emails.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'email-loading';
-    empty.textContent = _senderFilter ? `No emails from ${_senderFilterLabel || _senderFilter}` : 'No emails';
+    empty.textContent = _senderFilter ? t('email.no_emails_from').replace('{name}', _senderFilterLabel || _senderFilter) : t('email.no_emails');
     list.appendChild(empty);
     return;
   }
@@ -926,9 +927,9 @@ function _showEmailMenu(em, anchor, itemEl) {
 
   const actions = [
     { label: 'Open', icon: _replyIcon, action: () => _openEmail(em, itemEl) },
-    { label: 'Remind to reply', icon: _bellIcon, submenu: 'remind' },
-    { label: 'Archive', icon: _archiveIcon, action: () => _archiveEmail(em) },
-    { label: 'Delete', icon: _deleteIcon, danger: true, action: () => _deleteEmail(em) },
+    { label: t('email.remind_reply'), icon: _bellIcon, submenu: 'remind' },
+    { label: t('email.archive'), icon: _archiveIcon, action: () => _archiveEmail(em) },
+    { label: t('email.delete'), icon: _deleteIcon, danger: true, action: () => _deleteEmail(em) },
   ];
 
   for (const a of actions) {

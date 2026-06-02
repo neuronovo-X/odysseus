@@ -12,6 +12,7 @@ import spinnerModule from './spinner.js';
 import { modelColor } from './chatRenderer.js';
 import { providerLogo } from './providers.js';
 import { sortModelIds } from './modelSort.js';
+import { t } from './i18n.js';
 
 let API_BASE = '';
 let _cachedItems = []; // cached /api/models items for model-switch dropdown
@@ -533,7 +534,7 @@ export async function refreshModels(force = false) {
         if (searchResults.children.length === 0) {
           const empty = document.createElement('div');
           empty.style.cssText = 'text-align:center;padding:12px;opacity:0.4;';
-          empty.textContent = 'No models match "' + searchBox.value.trim() + '"';
+          empty.textContent = t('models.search_no_match').replace('{q}', searchBox.value.trim());
           searchResults.appendChild(empty);
         }
       });
@@ -544,38 +545,38 @@ export async function refreshModels(force = false) {
       const noModels = document.createElement('div');
       noModels.className = 'models-empty-state';
       if (window._isAdmin) {
-        noModels.innerHTML = '<span class="muted">No models found</span><br>'
-          + '<a href="#" onclick="document.getElementById(\'user-bar-admin\')?.click();return false;" class="accent-link">Open Admin to add endpoints</a>'
-          + '<br><span class="muted-sm">Type /setup for Local models or API setup.</span>';
+        noModels.innerHTML = '<span class="muted">' + t('models.none_found') + '</span><br>'
+          + '<a href="#" onclick="document.getElementById(\'user-bar-admin\')?.click();return false;" class="accent-link">' + t('models.open_admin') + '</a>'
+          + '<br><span class="muted-sm">' + t('models.setup_hint') + '</span>';
       } else {
-        noModels.innerHTML = '<span class="muted">No models available</span><br>'
-          + '<span class="muted-sm">Ask an admin to configure model endpoints</span>';
+        noModels.innerHTML = '<span class="muted">' + t('models.none_available') + '</span><br>'
+          + '<span class="muted-sm">' + t('models.ask_admin') + '</span>';
       }
       box.appendChild(noModels);
       // No endpoints yet: keep the welcome screen focused on first setup.
       const welcomeSub = document.getElementById('welcome-sub');
-      if (welcomeSub) welcomeSub.innerHTML = 'Type <span class="setup-trigger-link" style="color:var(--accent,var(--red));font-weight:600;cursor:pointer;text-decoration:underline;" title="Click to launch setup">/setup</span> to get started.';
+      if (welcomeSub) welcomeSub.innerHTML = t('chat.welcome_setup_sub');
       const welcomeTip = document.getElementById('welcome-tip');
-      if (welcomeTip) welcomeTip.textContent = 'Type /setup, then choose Local models or API.';
+      if (welcomeTip) welcomeTip.textContent = t('chat.welcome_tip_no_models');
     } else {
       // Configured installs should feel ready, not stuck in onboarding.
       const welcomeSub = document.getElementById('welcome-sub');
-      if (welcomeSub) welcomeSub.textContent = 'Yours for the voyage.';
+      if (welcomeSub) welcomeSub.textContent = t('chat.welcome_voyage');
       const welcomeTip = document.getElementById('welcome-tip');
       if (welcomeTip) {
         const tips = window.innerWidth <= 768
           ? [
-              'Tip: Long-press a session for rename, delete, and memory options.',
-              'Tip: Tap the eye icon for Nobody mode - no history saved.',
-              'Tip: Switch to Agent mode when you want tools.',
-              'Tip: Attach images or files using the + button next to the input.',
+              'Совет: Долгое нажатие на сессию — переименовать, удалить, память.',
+              'Совет: Нажмите на иконку глаза для режима «Никто».',
+              'Совет: Режим агента поддерживает веб-поиск и выполнение кода.',
+              'Совет: Прикрепите файлы кнопкой + рядом с полем ввода.',
             ]
           : [
-              'Tip: Press Ctrl+K to search across all your conversations.',
-              'Tip: Press Ctrl+B to quickly toggle the sidebar.',
-              'Tip: Shift-click the sidebar toggle to swap it to the other side.',
-              'Tip: Drag and drop files onto the chat to attach them.',
-              'Tip: Right-click a session for rename, delete, and memory options.',
+              'Совет: Ctrl+K — поиск по всем беседам.',
+              'Совет: Ctrl+B — быстро скрыть/показать сайдбар.',
+              'Совет: Shift+клик по кнопке сайдбара переносит его на другую сторону.',
+              'Совет: Перетащите файлы в чат, чтобы прикрепить их.',
+              'Совет: Правый клик по сессии — переименовать, удалить, память.',
             ];
         welcomeTip.textContent = tips[Math.floor(Math.random() * tips.length)];
       }

@@ -1,3 +1,31 @@
+import { t } from './i18n.js';
+
+const _DOCK_I18N = {
+  'notes-panel': 'nav.notes',
+  'custom-preset-modal': 'preset.title',
+  'doc-panel': 'doc.panel_title',
+  'doclib-modal': 'nav.documents',
+  'memory-modal': 'nav.brain',
+  'tasks-modal': 'nav.tasks',
+  'calendar-modal': 'nav.calendar',
+  'gallery-modal': 'nav.gallery',
+  'research-overlay': 'nav.research',
+  'cookbook-modal': 'nav.cookbook',
+  'email-lib-modal': 'nav.email',
+  'theme-modal': 'nav.theme',
+  'compare-model-overlay': 'nav.compare',
+  'settings-modal': 'settings.title',
+};
+
+function _dockLabel(id, fallback) {
+  const key = _DOCK_I18N[id];
+  if (key) {
+    const v = t(key);
+    if (v !== key) return v;
+  }
+  return fallback || id;
+}
+
 /**
  * ModalManager — unified open/minimize/close behavior for tool modals.
  *
@@ -338,7 +366,8 @@ function _renderDock() {
   _applyDockPos(dock);
   dock.innerHTML = '';
   for (const id of renderIds) {
-    const meta = _LABELS[id] || { label: id, icon: '' };
+    const raw = _LABELS[id] || { label: id, icon: '' };
+    const meta = { ...raw, label: _dockLabel(id, raw.label) };
     const chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'minimized-dock-chip';

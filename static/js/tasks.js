@@ -7,6 +7,7 @@ import markdownModule from './markdown.js';
 import * as spinnerModule from './spinner.js';
 import { makeWindowDraggable } from './windowDrag.js';
 import { sortModelIds } from './modelSort.js';
+import { t } from './i18n.js';
 
 const API_BASE = window.location.origin;
 let _open = false;
@@ -17,7 +18,8 @@ let _escHandler = null;
 let _viewingRuns = null; // task id when viewing run history
 let _clockInterval = null;
 
-const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const _DAY_KEYS = ['tasks.day.mon', 'tasks.day.tue', 'tasks.day.wed', 'tasks.day.thu', 'tasks.day.fri', 'tasks.day.sat', 'tasks.day.sun'];
+function _dayName(i) { return t(_DAY_KEYS[i] || _DAY_KEYS[0]); }
 
 // ---- API ----
 
@@ -122,7 +124,7 @@ async function _runNow(id, force = false) {
       const data = await res.json();
       if (data && data.detail) msg = data.detail;
     } catch (_) {}
-    if (res.status === 409) msg = 'Task is already running';
+    if (res.status === 409) msg = t('tasks.already_running');
     throw new Error(msg);
   }
 }
@@ -239,7 +241,7 @@ function _scheduleLabel(task) {
   const localTime = _utcTimeToLocal(t);
   if (task.schedule === 'daily') return `Daily at ${localTime}`;
   if (task.schedule === 'weekly') {
-    const day = DAYS_OF_WEEK[task.scheduled_day ?? 0];
+    const day = _dayName(task.scheduled_day ?? 0);
     return `Weekly on ${day} at ${localTime}`;
   }
   if (task.schedule === 'monthly') {
@@ -545,7 +547,7 @@ function _taskExitSelect() {
   _taskSelectMode = false; _taskSelected.clear();
   document.getElementById('tasks-bulk-bar')?.classList.add('hidden');
   const _sb = document.getElementById('tasks-select-btn');
-  if (_sb) { _sb.classList.remove('active'); _sb.textContent = 'Select'; }
+  if (_sb) { _sb.classList.remove('active'); _sb.textContent = t('tasks.select'); }
   const sa = document.getElementById('tasks-select-all'); if (sa) sa.checked = false;
   _renderList();
 }
@@ -558,7 +560,7 @@ function _taskToggleSelectAll() {
 }
 function _taskUpdateBulkCount() {
   const c = document.getElementById('tasks-selected-count');
-  if (c) c.textContent = `${_taskSelected.size} Selected`;
+  if (c) c.textContent = t('tasks.selected_count').replace('{n}', String(_taskSelected.size));
   const del = document.getElementById('tasks-bulk-delete');
   if (del) del.disabled = _taskSelected.size === 0;
 }
@@ -634,7 +636,7 @@ function _renderList() {
     if (!_tasksFetched) {
       list.appendChild(spinnerModule.createLoadingRow('Loading…'));
     } else {
-      list.innerHTML = '<div style="opacity:0.4;font-size:12px;text-align:center;padding:24px 0;">No tasks yet. Create one to get started.</div>';
+      list.innerHTML = '<div style="opacity:0.4;font-size:12px;text-align:center;padding:24px 0;">' + t('tasks.no_tasks') + '</div>';
     }
     return;
   }
@@ -663,7 +665,7 @@ function _renderList() {
     return (a.name || '').localeCompare(b.name || '');
   });
   if (visible.length === 0) {
-    list.innerHTML = '<div style="opacity:0.4;font-size:12px;text-align:center;padding:24px 0;">No matching tasks.</div>';
+    list.innerHTML = '<div style="opacity:0.4;font-size:12px;text-align:center;padding:24px 0;">' + t('tasks.no_matching') + '</div>';
     return;
   }
 
@@ -700,11 +702,11 @@ function _renderList() {
       const items = [];
       // Run now stays in the kebab too (alongside the new Run button on the
       // card) for users coming from muscle-memory / mobile long-press.
-      if (task.status !== 'completed') items.push({ label: 'Run now', icon: '<polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>', action: () => _doRunNow(task.id) });
+      if (task.status !== 'completed') items.push({ label: t('tasks.run_now'), icon: '<polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>', action: () => _doRunNow(task.id) });
       items.push({ label: 'Edit', icon: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>', action: () => _showForm(task) });
-      if (task.status === 'active') items.push({ label: 'Pause', icon: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>', action: () => _doPause(task.id) });
+      if (task.status === 'active') items.push({ label: t('tasks.pause'), icon: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>', action: () => _doPause(task.id) });
       else if (task.status === 'paused') items.push({ label: 'Resume', icon: '<polygon points="5 3 19 12 5 21 5 3"/>', action: () => _doResume(task.id) });
-      items.push({ label: 'History', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', action: () => _showRunHistory(task.id, task.name) });
+      items.push({ label: t('tasks.history'), icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', action: () => _showRunHistory(task.id, task.name) });
       if (task.is_builtin && task.is_modified) {
         items.push({ label: 'Revert to default', icon: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>', action: () => _doRevert(task.id) });
       }
@@ -722,7 +724,7 @@ function _renderList() {
       runBtn.className = 'task-status-badge task-run-now-badge task-card-run-btn';
       runBtn.title = 'Run now';
       runBtn.style.cssText = 'position:relative;top:1px;margin-right:4px;';
-      runBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Run</span>';
+      runBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>' + t('tasks.run') + '</span>';
       runBtn.addEventListener('click', (e) => { e.stopPropagation(); _doRunNow(task.id); });
       actionsWrap.insertBefore(runBtn, menuBtn);
     }
@@ -960,7 +962,7 @@ function _showPresetPicker() {
   html += '<p class="memory-desc" style="position:relative;top:4px;">Describe a task for the AI to draft, or pick a type below to set one up manually.</p>';
   html += '<div class="task-ai-compose" style="display:flex;gap:6px;margin:6px 0 10px;">'
     + '<input type="text" id="task-ai-input" class="memory-search-input" style="flex:1;" placeholder="Describe a task — e.g. &quot;every weekday 7am summarize my unread email&quot;" />'
-    + '<button class="memory-toolbar-btn active" id="task-ai-btn" title="Draft a task with AI" style="white-space:nowrap;height:28px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M12 0L14.59 8.41L23 12L14.59 15.59L12 24L9.41 15.59L1 12L9.41 8.41Z"/></svg>Draft with AI</button>'
+    + '<button class="memory-toolbar-btn active" id="task-ai-btn" title="' + t('tasks.draft_with_ai') + '" style="white-space:nowrap;height:28px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;margin-right:3px;"><path d="M12 0L14.59 8.41L23 12L14.59 15.59L12 24L9.41 15.59L1 12L9.41 8.41Z"/></svg>' + t('tasks.draft_with_ai') + '</button>'
     + '</div>';
   html += '<div class="memory-list" style="max-height:none;flex:1;gap:0px;margin-top:2px;padding-right:8px;">';
   _TASK_PRESETS.forEach((p, i) => {
@@ -1006,55 +1008,55 @@ function _showForm(existing, initTaskType, initTriggerType) {
   body.innerHTML = `
     <div class="admin-card" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px;">
-        <h2 style="margin:0;padding:0;line-height:1;">${existing?.id ? 'Edit Task' : 'New Task'}</h2>
+        <h2 style="margin:0;padding:0;line-height:1;">${existing?.id ? t('tasks.edit_task') : t('tasks.new_task')}</h2>
       </div>
-      <p class="memory-desc">${existing?.id ? 'Update this task’s schedule, prompt, and output.' : 'Configure a prompt, research, or action to run automatically.'}</p>
+      <p class="memory-desc">${existing?.id ? t('tasks.form_desc_edit') : t('tasks.form_desc_new')}</p>
     <div class="task-form" style="flex:1;overflow-y:auto;min-height:0;">
-      <label class="task-form-label">Name</label>
-      <input type="text" id="task-form-name" class="task-form-input" value="${_esc(existing?.name || '')}" placeholder="${existing ? '' : 'Auto-generated if blank'}" />
+      <label class="task-form-label">${t('tasks.name_label')}</label>
+      <input type="text" id="task-form-name" class="task-form-input" value="${_esc(existing?.name || '')}" placeholder="${existing ? '' : t('tasks.name_placeholder')}" />
 
-      <label class="task-form-label">Type</label>
+      <label class="task-form-label">${t('tasks.type')}</label>
       <div class="task-form-toggle" id="task-form-type-toggle">
-        <button class="task-toggle-btn ${curTaskType === 'llm' ? 'active' : ''}" data-val="llm" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Prompt</button>
-        <button class="task-toggle-btn ${curTaskType === 'research' ? 'active' : ''}" data-val="research" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Research</button>
-        <button class="task-toggle-btn ${curTaskType === 'action' ? 'active' : ''}" data-val="action" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Action</button>
+        <button class="task-toggle-btn ${curTaskType === 'llm' ? 'active' : ''}" data-val="llm" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>${t('tasks.type_prompt')}</button>
+        <button class="task-toggle-btn ${curTaskType === 'research' ? 'active' : ''}" data-val="research" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${t('tasks.type_research')}</button>
+        <button class="task-toggle-btn ${curTaskType === 'action' ? 'active' : ''}" data-val="action" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>${t('tasks.type_action')}</button>
       </div>
 
       <div id="task-form-type-opts"></div>
 
-      <label class="task-form-label">Trigger</label>
+      <label class="task-form-label">${t('tasks.trigger')}</label>
       <div class="task-form-toggle" id="task-form-trigger-toggle">
-        <button class="task-toggle-btn ${curTriggerType === 'schedule' ? 'active' : ''}" data-val="schedule" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Schedule</button>
-        <button class="task-toggle-btn ${curTriggerType === 'event' ? 'active' : ''}" data-val="event" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Event</button>
-        <button class="task-toggle-btn ${curTriggerType === 'webhook' ? 'active' : ''}" data-val="webhook" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Webhook</button>
+        <button class="task-toggle-btn ${curTriggerType === 'schedule' ? 'active' : ''}" data-val="schedule" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${t('tasks.trigger_schedule')}</button>
+        <button class="task-toggle-btn ${curTriggerType === 'event' ? 'active' : ''}" data-val="event" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${t('tasks.trigger_event')}</button>
+        <button class="task-toggle-btn ${curTriggerType === 'webhook' ? 'active' : ''}" data-val="webhook" style="position:relative;top:-4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>${t('tasks.trigger_webhook')}</button>
       </div>
 
       <div id="task-form-trigger-opts"></div>
 
-      <label class="task-form-label">Output</label>
+      <label class="task-form-label">${t('tasks.output')}</label>
       <select id="task-form-output" class="task-form-input">
-        <option value="session">Session</option>
+        <option value="session">${t('tasks.output_session')}</option>
       </select>
 
-      <label class="task-form-label">Model <span style="opacity:0.5;font-weight:normal;font-size:10px;">(optional — overrides session default)</span></label>
+      <label class="task-form-label">${t('tasks.model_optional')} <span style="opacity:0.5;font-weight:normal;font-size:10px;"></span></label>
       <select id="task-form-model" class="task-form-input">
-        <option value="">Use session default</option>
+        <option value="">${t('tasks.model_default')}</option>
       </select>
 
-      <label class="task-form-label">Chain</label>
+      <label class="task-form-label">${t('tasks.chain')}</label>
       <select id="task-form-chain" class="task-form-input">
-        <option value="">None</option>
+        <option value="">${t('tasks.chain_none')}</option>
       </select>
 
       <label class="task-form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
         <input type="checkbox" id="task-form-notif" ${existing && existing.notifications_enabled === false ? '' : 'checked'} style="margin:0;cursor:pointer;">
-        <span>Notifications</span>
-        <span style="opacity:0.55;font-weight:normal;font-size:10px;">— uncheck to silence completion notifications for this task (helpful for chatty cron jobs)</span>
+        <span>${t('tasks.notifications')}</span>
+        <span style="opacity:0.55;font-weight:normal;font-size:10px;">${t('tasks.notifications_hint')}</span>
       </label>
 
       <div class="task-form-actions">
-        <button id="task-form-cancel" class="memory-toolbar-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cancel</button>
-        <button id="task-form-save" class="memory-toolbar-btn active"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>${existing?.id ? 'Save' : 'Create'}</button>
+        <button id="task-form-cancel" class="memory-toolbar-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>${t('tasks.cancel')}</button>
+        <button id="task-form-save" class="memory-toolbar-btn active"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>${existing?.id ? t('tasks.save') : t('tasks.create')}</button>
       </div>
     </div>
     </div>
@@ -1068,16 +1070,16 @@ function _showForm(existing, initTaskType, initTriggerType) {
   function renderTypeOpts() {
     typeOpts.innerHTML = '';
     if (taskType === 'llm' || taskType === 'research') {
-      const placeholder = taskType === 'research' ? 'What should be researched?' : 'What should the AI do?';
+      const placeholder = taskType === 'research' ? t('tasks.research_placeholder') : t('tasks.prompt_placeholder');
       typeOpts.innerHTML = `
-        <label class="task-form-label">${taskType === 'research' ? 'Research question' : 'Prompt'}</label>
+        <label class="task-form-label">${taskType === 'research' ? t('tasks.research_label') : t('tasks.prompt_label')}</label>
         <textarea id="task-form-prompt" class="task-form-input task-form-textarea" rows="4" placeholder="${placeholder}">${existing?.prompt || ''}</textarea>
       `;
     } else {
       typeOpts.innerHTML = `
-        <label class="task-form-label">Action</label>
+        <label class="task-form-label">${t('tasks.action_label')}</label>
         <select id="task-form-action" class="task-form-input">
-          <option value="">Loading…</option>
+          <option value="">${t('tasks.loading')}</option>
         </select>
         <div id="task-form-action-extra"></div>
       `;
@@ -1175,15 +1177,15 @@ function _showForm(existing, initTaskType, initTriggerType) {
         if (sched === 'weekly') {
           const label = document.createElement('label');
           label.className = 'task-form-label';
-          label.textContent = 'Day of week';
+          label.textContent = t('tasks.day_of_week');
           schedOpts.appendChild(label);
           const sel = document.createElement('select');
           sel.id = 'task-form-day';
           sel.className = 'task-form-input';
-          DAYS_OF_WEEK.forEach((day, i) => {
+          _DAY_KEYS.forEach((key, i) => {
             const opt = document.createElement('option');
             opt.value = i;
-            opt.textContent = day;
+            opt.textContent = t(key);
             if (existing && existing.scheduled_day === i) opt.selected = true;
             sel.appendChild(opt);
           });
@@ -1567,7 +1569,7 @@ async function _showRunHistory(taskId, taskName) {
 async function _doPause(id) {
   try {
     await _pauseTask(id);
-    if (uiModule) uiModule.showToast('Task paused');
+    if (uiModule) uiModule.showToast(t('tasks.paused'));
     await _fetchTasks();
     _renderMainView();
   } catch (e) { if (uiModule) uiModule.showError(e.message); }
@@ -1576,7 +1578,7 @@ async function _doPause(id) {
 async function _doResume(id) {
   try {
     await _resumeTask(id);
-    if (uiModule) uiModule.showToast('Task resumed');
+    if (uiModule) uiModule.showToast(t('tasks.resumed'));
     await _fetchTasks();
     _renderMainView();
   } catch (e) { if (uiModule) uiModule.showError(e.message); }
@@ -1604,8 +1606,8 @@ async function _doRunNow(id, force = false) {
 
 async function _doDelete(id) {
   const ok = uiModule?.styledConfirm
-    ? await uiModule.styledConfirm('Delete this task and all its run history?', { confirmText: 'Delete', danger: true })
-    : confirm('Delete this task and all its run history?');
+    ? await uiModule.styledConfirm(t('tasks.delete_one_confirm'), { confirmText: t('notes.delete'), danger: true })
+    : confirm(t('tasks.delete_one_confirm'));
   if (!ok) return;
   try {
     await _deleteTask(id);
@@ -1694,13 +1696,13 @@ function _syncPauseAllButton() {
   const hasActive = _tasks.some(t => t.status === 'active');
   const hasPaused = _tasks.some(t => t.status === 'paused');
   if (hasActive) {
-    btn.innerHTML = pauseIco + 'Pause all';
-    btn.title = 'Pause every active task';
+    btn.innerHTML = pauseIco + t('tasks.pause_all');
+    btn.title = t('tasks.pause_all');
     btn.style.opacity = '1';
     btn.disabled = false;
   } else if (hasPaused) {
-    btn.innerHTML = playIco + 'Resume all';
-    btn.title = 'Resume every paused task';
+    btn.innerHTML = playIco + t('tasks.resume_all');
+    btn.title = t('tasks.resume_all');
     btn.style.opacity = '1';
     btn.disabled = false;
   } else {

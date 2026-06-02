@@ -1030,6 +1030,12 @@ async def startup_event():
     _startup_tasks.append(asyncio.create_task(_skill_audit_nightly_loop()))
     logger.info("Application startup complete")
 
+    import threading, webbrowser, time as _time
+    def _open_browser():
+        _time.sleep(1.5)
+        webbrowser.open("http://127.0.0.1:7000")
+    threading.Thread(target=_open_browser, daemon=True).start()
+
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Application shutting down...")

@@ -7,6 +7,7 @@ import { makeWindowDraggable } from './windowDrag.js';
 import { clearDockSide } from './modalSnap.js';
 import { sortModelIds } from './modelSort.js';
 import { isAltGrEvent } from './platform.js';
+import { t } from './i18n.js';
 
 let initialized = false;
 let modalEl = null;
@@ -333,7 +334,7 @@ function _bindFallbackWidget(opts) {
       var rm = document.createElement('button');
       rm.type = 'button';
       rm.className = 'settings-fallback-remove';
-      rm.title = 'Remove fallback';
+      rm.title = t('title.remove_fallback');
       rm.innerHTML = '&times;';
       rm.addEventListener('click', function() {
         current.splice(idx, 1);
@@ -437,7 +438,7 @@ async function initDefaultChat() {
       var rm = document.createElement('button');
       rm.type = 'button';
       rm.className = 'settings-fallback-remove';
-      rm.title = 'Remove fallback';
+      rm.title = t('title.remove_fallback');
       rm.innerHTML = '&times;';
       rm.addEventListener('click', function() {
         _fallbacks.splice(idx, 1);
@@ -477,9 +478,9 @@ async function initDefaultChat() {
           default_model_fallbacks: clean
         })
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(function() { msg.textContent = ''; }, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   epSel.addEventListener('change', function() { refreshModels(''); saveDefault(); });
@@ -504,8 +505,8 @@ async function initUtilityModel() {
   var msg = el('set-utilityChatMsg');
   var _endpoints = [];
   var fallbackWidget = null;
-  if (epSel && epSel.options[0]) epSel.options[0].textContent = 'Same as chat';
-  if (modelSel && modelSel.options[0]) modelSel.options[0].textContent = 'Same as chat';
+  if (epSel && epSel.options[0]) epSel.options[0].textContent = t('settings.same_as_chat');
+  if (modelSel && modelSel.options[0]) modelSel.options[0].textContent = t('settings.same_as_chat');
 
   try {
     _endpoints = await _fetchModelEndpoints();
@@ -546,9 +547,9 @@ async function initUtilityModel() {
           utility_model: modelSel.value || ''
         })
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(function() { msg.textContent = ''; }, 1500);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   epSel.addEventListener('change', function() { refreshModels(''); saveUtility(); });
@@ -641,10 +642,10 @@ async function initTeacherModel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ teacher_enabled: enabled, teacher_model: spec })
       });
-      msg.textContent = enabled ? (spec ? 'Saved' : 'Pick an endpoint + model') : 'Disabled';
+      msg.textContent = enabled ? (spec ? t('settings.saved') : t('settings.pick_endpoint_model')) : t('settings.disabled_label');
       msg.style.color = enabled && !spec ? 'var(--red)' : 'var(--fg)';
       setTimeout(function() { msg.textContent = ''; }, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   if (enabledToggle) {
@@ -717,8 +718,8 @@ async function initImageSettings() {
     try {
       await fetch('/api/auth/settings', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_gen_enabled: enabledToggle ? enabledToggle.checked : true, image_model: modelSel.value, image_quality: qualSel.value }) });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)'; setTimeout(() => { msg.textContent = ''; }, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)'; setTimeout(() => { msg.textContent = ''; }, 2000);
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
   modelSel.addEventListener('change', saveSettings);
   qualSel.addEventListener('change', saveSettings);
@@ -790,8 +791,8 @@ async function initVisionSettings() {
     try {
       await fetch('/api/auth/settings', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vision_enabled: enabledToggle ? enabledToggle.checked : true, vision_model: vlSel.value }) });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)'; setTimeout(() => { msg.textContent = ''; }, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)'; setTimeout(() => { msg.textContent = ''; }, 2000);
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
   vlSel.addEventListener('change', saveSettings);
   if (enabledToggle) enabledToggle.addEventListener('change', function() { syncVisionDisabled(); saveSettings(); });
@@ -872,9 +873,9 @@ async function initTtsSettings() {
     try {
       await fetch('/api/auth/settings', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tts_enabled: ttsEnabledToggle ? ttsEnabledToggle.checked : true, tts_provider: provSel.value, tts_model: getModel() || 'tts-1', tts_voice: getVoice() || 'alloy', tts_speed: speedSelect.value || '1' }) });
-      ttsMsg.textContent = 'Saved'; ttsMsg.style.color = 'var(--fg)'; setTimeout(() => { ttsMsg.textContent = ''; }, 2000);
+      ttsMsg.textContent = t('settings.saved'); ttsMsg.style.color = 'var(--fg)'; setTimeout(() => { ttsMsg.textContent = ''; }, 2000);
       if (window.aiTTSManager) window.aiTTSManager.checkAvailability();
-    } catch (e) { ttsMsg.textContent = 'Failed to save'; ttsMsg.style.color = 'var(--red)'; }
+    } catch (e) { ttsMsg.textContent = t('settings.failed_to_save'); ttsMsg.style.color = 'var(--red)'; }
   }
 
   async function saveAndClearCache() {
@@ -886,7 +887,7 @@ async function initTtsSettings() {
     var prov = provSel.value;
     if (prov === 'local') voiceInput.value = 'af_heart';
     else if (isEndpoint()) { voiceSelect.value = 'alloy'; modelSelect.value = 'tts-1'; }
-    else if (prov === 'browser') { voiceInput.value = ''; voiceInput.placeholder = 'OS default voice'; }
+    else if (prov === 'browser') { voiceInput.value = ''; voiceInput.placeholder = t('settings.os_default_voice'); }
     updateVisibility();
     saveTTS();
   });
@@ -902,7 +903,7 @@ async function initTtsSettings() {
   if (previewBtn) {
     var previewAudio = null;
     var previewPlaying = false;
-    function resetPreview() { previewPlaying = false; previewBtn.textContent = 'Preview'; previewBtn.style.borderColor = ''; }
+    function resetPreview() { previewPlaying = false; previewBtn.textContent = t('btn.preview'); previewBtn.style.borderColor = ''; }
 
     previewBtn.addEventListener('click', async function() {
       if (previewPlaying) {
@@ -912,11 +913,11 @@ async function initTtsSettings() {
       }
       var prov = provSel.value;
       if (prov === 'disabled') {
-        ttsMsg.textContent = 'Select a provider first'; ttsMsg.style.color = 'var(--red, #e55)';
+        ttsMsg.textContent = t('settings.select_provider_first'); ttsMsg.style.color = 'var(--red, #e55)';
         setTimeout(function() { ttsMsg.textContent = ''; }, 2000); return;
       }
       var testText = 'Hello, this is a test of text to speech.';
-      previewPlaying = true; previewBtn.textContent = 'Loading...';
+      previewPlaying = true; previewBtn.textContent = t('btn.loading');
       try {
         if (prov === 'browser') {
           if (!('speechSynthesis' in window)) throw new Error('Browser TTS not supported');
@@ -930,7 +931,7 @@ async function initTtsSettings() {
             if (match) utt.voice = match;
           }
           utt.rate = parseFloat(speedSelect.value) || 1;
-          previewBtn.textContent = 'Stop'; previewBtn.style.borderColor = 'var(--red, #e55)';
+          previewBtn.textContent = t('btn.stop'); previewBtn.style.borderColor = 'var(--red, #e55)';
           await new Promise(function(resolve, reject) {
             utt.onend = resolve;
             utt.onerror = function(e) { reject(new Error('Browser TTS: ' + e.error)); };
@@ -946,7 +947,7 @@ async function initTtsSettings() {
           var blob = await res.blob();
           var url = URL.createObjectURL(blob);
           previewAudio = new Audio(url);
-          previewBtn.textContent = 'Stop'; previewBtn.style.borderColor = 'var(--red, #e55)';
+          previewBtn.textContent = t('btn.stop'); previewBtn.style.borderColor = 'var(--red, #e55)';
           await new Promise(function(resolve, reject) {
             previewAudio.onended = function() { URL.revokeObjectURL(url); previewAudio = null; resolve(); };
             previewAudio.onerror = function() { URL.revokeObjectURL(url); previewAudio = null; reject(new Error('Playback failed')); };
@@ -954,7 +955,7 @@ async function initTtsSettings() {
           });
         }
       } catch (e) {
-        ttsMsg.textContent = 'Preview failed: ' + e.message; ttsMsg.style.color = 'var(--red, #e55)';
+        ttsMsg.textContent = t('settings.preview_failed') + e.message; ttsMsg.style.color = 'var(--red, #e55)';
         setTimeout(function() { ttsMsg.textContent = ''; }, 3000);
       } finally {
         resetPreview();
@@ -1035,11 +1036,11 @@ async function initSttSettings() {
       await fetch('/api/auth/settings', { method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stt_enabled: enabled, stt_provider: provSel.value, stt_model: getModel() || 'base', stt_language: langInput.value.trim() }) });
-      sttMsg.textContent = 'Saved'; sttMsg.style.color = 'var(--fg)'; setTimeout(() => { sttMsg.textContent = ''; }, 2000);
+      sttMsg.textContent = t('settings.saved'); sttMsg.style.color = 'var(--fg)'; setTimeout(() => { sttMsg.textContent = ''; }, 2000);
       // Notify voiceRecorder of effective provider and update send button icon
       if (window.voiceRecorderModule) window.voiceRecorderModule._sttProvider = effectiveProvider();
       if (window._updateSendBtnIcon) window._updateSendBtnIcon();
-    } catch (e) { sttMsg.textContent = 'Failed to save'; sttMsg.style.color = 'var(--red)'; }
+    } catch (e) { sttMsg.textContent = t('settings.failed_to_save'); sttMsg.style.color = 'var(--red)'; }
   }
 
   provSel.addEventListener('change', function() { updateVisibility(); saveSTT(); });
@@ -1054,19 +1055,35 @@ async function initSttSettings() {
    ═══════════════════════════════════════════ */
 
 var _searchProviderHints = {
-  searxng: 'Self-hosted SearXNG instance. Leave URL empty to use the SEARXNG_INSTANCE env var.',
-  duckduckgo: 'Free search — no API key required. Works out of the box.',
-  brave: 'Get your API key from brave.com/search/api',
-  google_pse: 'Requires a Google API key and a Programmable Search Engine ID (CX). Create one at programmablesearchengine.google.com',
-  tavily: 'AI-optimized search. 1,000 free credits/month at tavily.com',
-  serper: 'Google results via API. 2,500 free queries at serper.dev',
-  disabled: 'Web search and deep research tools will be unavailable.',
+  searxng: 'settings.search_hint.searxng',
+  duckduckgo: 'settings.search_hint.duckduckgo',
+  brave: 'settings.search_hint.brave',
+  google_pse: 'settings.search_hint.google_pse',
+  tavily: 'settings.search_hint.tavily',
+  serper: 'settings.search_hint.serper',
+  disabled: 'settings.search_hint.disabled',
 };
 var _searchNeedsKey = { brave: 1, google_pse: 1, tavily: 1, serper: 1 };
 var _searchLabels = {
-  searxng: 'SearXNG', duckduckgo: 'DuckDuckGo', brave: 'Brave Search',
-  google_pse: 'Google PSE', tavily: 'Tavily', serper: 'Serper', disabled: 'Disabled',
+  searxng: 'settings.search_provider.searxng',
+  duckduckgo: 'settings.search_provider.duckduckgo',
+  brave: 'settings.search_provider.brave',
+  google_pse: 'settings.search_provider.google_pse',
+  tavily: 'settings.search_provider.tavily',
+  serper: 'settings.search_provider.serper',
+  disabled: 'settings.search_disabled',
 };
+function _searchProviderLabel(prov) {
+  const key = _searchLabels[prov];
+  return key ? t(key) : prov;
+}
+function _applySearchProviderOptionLabels() {
+  const sel = el('set-searchProvider');
+  if (!sel) return;
+  Array.from(sel.options).forEach(function(o) {
+    o.textContent = _searchProviderLabel(o.value);
+  });
+}
 var _searchKeyFields = {
   brave: 'brave_api_key', google_pse: 'google_pse_key',
   tavily: 'tavily_api_key', serper: 'serper_api_key',
@@ -1098,12 +1115,13 @@ async function initSearchSettings() {
     urlRow.style.display = prov === 'searxng' ? 'flex' : 'none';
     keyRow.style.display = _searchNeedsKey[prov] ? 'flex' : 'none';
     cxRow.style.display = prov === 'google_pse' ? 'flex' : 'none';
-    hint.textContent = _searchProviderHints[prov] || '';
-    if (prov === 'brave') keyInput.placeholder = 'Brave API key';
-    else if (prov === 'google_pse') keyInput.placeholder = 'Google API key';
-    else if (prov === 'tavily') keyInput.placeholder = 'Tavily API key';
-    else if (prov === 'serper') keyInput.placeholder = 'Serper API key';
-    else keyInput.placeholder = 'API key';
+    const hintKey = _searchProviderHints[prov];
+    hint.textContent = hintKey ? t(hintKey) : '';
+    if (prov === 'brave') keyInput.placeholder = t('settings.placeholder_brave_key');
+    else if (prov === 'google_pse') keyInput.placeholder = t('settings.placeholder_google_key');
+    else if (prov === 'tavily') keyInput.placeholder = t('settings.placeholder_tavily_key');
+    else if (prov === 'serper') keyInput.placeholder = t('settings.placeholder_serper_key');
+    else keyInput.placeholder = t('settings.placeholder_api_key');
     loadKeyForProvider(prov);
   }
 
@@ -1139,6 +1157,7 @@ async function initSearchSettings() {
   });
 
   updateVisibility();
+  _applySearchProviderOptionLabels();
 
   async function refreshStatus() {
     try {
@@ -1146,17 +1165,17 @@ async function initSearchSettings() {
       var s = await sRes.json();
       _settings = s;
       var active = s.search_provider || 'searxng';
-      var label = _searchLabels[active] || active;
+      var label = _searchProviderLabel(active);
       var extra = '';
       var kf = keyFieldFor(active);
       var hasKey = kf ? ((s[kf] || '').trim() || (s.search_api_key || '').trim()) : false;
       if (_searchNeedsKey[active]) {
-        extra = hasKey ? ' (key set)' : ' (no key)';
+        extra = hasKey ? t('settings.search.key_set') : t('settings.search.no_key');
       } else if (active === 'searxng' && (s.search_url || '').trim()) {
         extra = ' (' + s.search_url + ')';
       }
       var count = s.search_result_count || 5;
-      msg.textContent = 'Active: ' + label + extra + ' \u00b7 ' + count + ' results';
+      msg.textContent = t('settings.search_active') + ': ' + label + extra + ' \u00b7 ' + count + ' ' + t('settings.results');
       msg.style.color = active === 'disabled' ? 'var(--red)' : (_searchNeedsKey[active] && !hasKey) ? 'var(--red)' : 'var(--fg)';
     } catch (e) { /* ignore */ }
   }
@@ -1191,10 +1210,10 @@ async function initSearchSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(refreshStatus, 2000);
       if (searchModule && searchModule.refresh) searchModule.refresh();
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   provSel.addEventListener('change', function() { updateVisibility(); saveSearch(); _syncSearchPicker(); });
@@ -1267,18 +1286,18 @@ async function initSearchSettings() {
     var chain = (_settings.search_fallback_chain || []).slice();
     var esc = function(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); };
     var chipsHtml = chain.map(function(p, i) {
-      var label = _searchLabels[p] || p;
+      var label = _searchProviderLabel(p);
       var logo = _SEARCH_PROVIDER_LOGOS[p] || '';
       return '<span class="search-fb-chip" draggable="true" data-idx="' + i + '" data-value="' + esc(p) + '">' +
-        '<span class="search-fb-grip" title="Drag to reorder">⋮⋮</span>' +
+        '<span class="search-fb-grip" title="' + t('settings.search.drag_reorder').replace(/"/g, '&quot;') + '">⋮⋮</span>' +
         '<span class="search-fb-logo">' + logo + '</span>' +
         '<span>' + esc(label) + '</span>' +
-        '<button type="button" class="search-fb-remove" data-value="' + esc(p) + '" title="Remove">&times;</button>' +
+        '<button type="button" class="search-fb-remove" data-value="' + esc(p) + '" title="' + t('settings.search.remove').replace(/"/g, '&quot;') + '">&times;</button>' +
       '</span>';
     }).join('');
     var addOptions = _availableFallbackOptions();
     var addSelect = addOptions.length
-      ? '<select class="search-fb-add" id="search-fb-add"><option value="">+ Add</option>' +
+      ? '<select class="search-fb-add" id="search-fb-add"><option value="">' + t('settings.search.add_fallback') + '</option>' +
           addOptions.map(function(o) { return '<option value="' + esc(o.value) + '">' + esc(o.label) + '</option>'; }).join('') +
         '</select>'
       : '';
@@ -1329,9 +1348,9 @@ async function initSearchSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ search_fallback_chain: chain }),
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(refreshStatus, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
     _renderFallbackChain();
   }
   _renderFallbackChain();
@@ -1344,7 +1363,7 @@ async function initSearchSettings() {
     testBtn.addEventListener('click', async function() {
       var prov = provSel.value;
       if (!prov || prov === 'disabled') {
-        msg.textContent = 'Pick a provider first';
+        msg.textContent = t('settings.select_provider_first');
         msg.style.color = 'var(--red)';
         return;
       }
@@ -1352,7 +1371,7 @@ async function initSearchSettings() {
       await saveSearch();
       testBtn.disabled = true;
       var orig = testBtn.textContent;
-      testBtn.textContent = 'Testing...';
+      testBtn.textContent = t('btn.testing');
       msg.textContent = '';
       var t0 = performance.now();
       try {
@@ -1367,20 +1386,25 @@ async function initSearchSettings() {
           msg.textContent = '✗ ' + d.error + ' (' + ms + 'ms)';
           msg.style.color = 'var(--red)';
         } else if (!d.results || !d.results.length) {
-          msg.textContent = '⚠ No results returned (' + ms + 'ms)';
+          msg.textContent = '⚠ ' + t('settings.search_no_results') + ' (' + ms + 'ms)';
           msg.style.color = 'var(--red)';
         } else {
           var topTitle = (d.results[0].title || d.results[0].url || '').slice(0, 60);
-          msg.textContent = '✓ ' + d.results.length + ' result' + (d.results.length === 1 ? '' : 's') + ' · ' + ms + 'ms · top: ' + topTitle;
+          msg.textContent = '✓ ' + d.results.length + ' ' + t('settings.results') + ' · ' + ms + 'ms · ' + t('settings.top') + ': ' + topTitle;
           msg.style.color = 'var(--fg)';
         }
       } catch (e) {
-        msg.textContent = '✗ Test failed: ' + (e && e.message ? e.message : e);
+        msg.textContent = '✗ ' + t('settings.test_failed') + ': ' + (e && e.message ? e.message : e);
         msg.style.color = 'var(--red)';
       } finally {
         testBtn.disabled = false; testBtn.textContent = orig;
       }
     });
+  }
+  _applySearchProviderOptionLabels();
+  if (pickerMenu) {
+    _renderSearchPickerMenu();
+    _syncSearchPicker();
   }
 }
 
@@ -1399,6 +1423,8 @@ var _SEARCH_PROVIDER_LOGOS = {
 async function initResearchSettings() {
   var epSel = el('set-researchEndpoint');
   var modelSel = el('set-researchModel');
+  if (epSel && epSel.options[0]) epSel.options[0].textContent = t('settings.same_as_chat');
+  if (modelSel && modelSel.options[0]) modelSel.options[0].textContent = t('settings.same_as_chat');
   var tokensInput = el('set-researchMaxTokens');
   var extractTimeoutInput = el('set-researchExtractTimeout');
   var extractConcurrencyInput = el('set-researchExtractConcurrency');
@@ -1456,7 +1482,7 @@ async function initResearchSettings() {
       msg.textContent = parts.join(' · ');
       msg.style.color = 'var(--fg)';
     } else {
-      msg.textContent = 'Using chat defaults';
+      msg.textContent = t('settings.using_chat_defaults');
       msg.style.color = 'var(--fg)';
     }
   }
@@ -1485,9 +1511,9 @@ async function initResearchSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(showStatus, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   epSel.addEventListener('change', async function() {
@@ -1521,10 +1547,10 @@ async function initResearchSearchSettings() {
       if (!kf) return;
       var hasKey = ((settings[kf] || '').trim() || (settings.search_api_key || '').trim());
       if (!hasKey) {
-        opt.textContent = (_searchLabels[prov] || prov) + ' (no key)';
+        opt.textContent = (t(_searchLabels[prov]) || prov) + ' ' + t('settings.no_key');
         opt.style.color = 'var(--red)';
       } else {
-        opt.textContent = _searchLabels[prov] || prov;
+        opt.textContent = t(_searchLabels[prov]) || prov;
         opt.style.color = '';
       }
     });
@@ -1543,9 +1569,9 @@ async function initResearchSearchSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ research_search_provider: searchSel.value })
       });
-      msg.textContent = 'Saved'; msg.style.color = 'var(--fg)';
+      msg.textContent = t('settings.saved'); msg.style.color = 'var(--fg)';
       setTimeout(function() { msg.textContent = ''; }, 2000);
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   searchSel.addEventListener('change', saveResearchSearch);
@@ -1570,20 +1596,121 @@ async function initAgentSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agent_max_tool_calls: val })
       });
-      msg.textContent = val > 0 ? 'Limit: ' + val + ' tool calls per message' : 'Unlimited';
+      msg.textContent = val > 0 ? t('settings.agent_limit').replace('{n}', String(val)) : t('settings.agent_unlimited');
       msg.style.color = 'var(--fg)';
-    } catch (e) { msg.textContent = 'Failed to save'; msg.style.color = 'var(--red)'; }
+    } catch (e) { msg.textContent = t('settings.failed_to_save'); msg.style.color = 'var(--red)'; }
   }
 
   toolsInput.addEventListener('change', save);
   var cur = parseInt(toolsInput.value, 10) || 0;
-  msg.textContent = cur > 0 ? 'Limit: ' + cur + ' tool calls per message' : 'Unlimited';
+  msg.textContent = cur > 0 ? t('settings.agent_limit').replace('{n}', String(cur)) : t('settings.agent_unlimited');
 }
 
 /* ═══════════════════════════════════════════
    APPEARANCE TAB
    ═══════════════════════════════════════════ */
+const _VIS_I18N = {
+  'sidebar-brand': ['settings.vis.brand', 'settings.vis.brand_hint'],
+  'sidebar-search': ['settings.vis.search'],
+  'sidebar-new-chat': ['settings.vis.new_chat'],
+  'sessions-section': ['settings.vis.chats', 'settings.vis.chats_hint'],
+  'email-section': ['settings.vis.email'],
+  'models-section': ['settings.vis.models', 'settings.vis.models_hint'],
+  'tools-section': ['settings.vis.tools', 'settings.vis.tools_hint'],
+  'tool-memory': ['settings.vis.brain'],
+  'tool-calendar': ['settings.vis.calendar'],
+  'tool-compare': ['settings.vis.compare'],
+  'tool-cookbook': ['settings.vis.cookbook'],
+  'tool-research': ['settings.vis.deep_research'],
+  'tool-gallery': ['settings.vis.gallery'],
+  'tool-library': ['settings.vis.library'],
+  'tool-notes': ['settings.vis.notes'],
+  'tool-tasks': ['settings.vis.tasks'],
+  'tool-theme': ['settings.vis.theme'],
+  'user-bar': ['settings.vis.user', 'settings.vis.user_hint'],
+  'sidebar-settings-btn': ['settings.vis.settings_btn', 'settings.vis.settings_btn_hint'],
+  'chat-meta': ['settings.vis.session_header', 'settings.vis.session_header_hint'],
+  'welcome-text': ['settings.vis.welcome', 'settings.vis.welcome_hint'],
+  'incognito-btn': ['settings.vis.incognito', 'settings.vis.incognito_hint'],
+  'text-emojis': ['settings.vis.text_emojis', 'settings.vis.text_emojis_hint'],
+  'show-thinking': ['settings.vis.thinking', 'settings.vis.thinking_hint'],
+  'sensitive-blur': ['settings.vis.sensitive_blur', 'settings.vis.sensitive_blur_hint'],
+  'web-toggle-btn': ['settings.vis.web_search'],
+  'doc-toggle-btn': ['settings.vis.doc_editor'],
+  'bash-toggle-btn': ['settings.vis.shell'],
+  'overflow-plus-btn': ['settings.vis.more_tools', 'settings.vis.more_tools_hint'],
+  'mode-toggle': ['settings.vis.mode_switch', 'settings.vis.mode_switch_hint'],
+  'attach-btn': ['settings.vis.attach'],
+  'research-btn': ['settings.vis.deep_research'],
+  'preset-mini-btn': ['settings.vis.personas', 'settings.vis.personas_hint'],
+};
+const _VIS_SECTION_I18N = {
+  'settings.vis.section_sidebar': '.settings-appearance-panel .admin-card:nth-of-type(1) > h2',
+  'settings.vis.section_chat_area': '.settings-appearance-panel .admin-card:nth-of-type(2) > h2',
+  'settings.vis.section_chat_bar': '.settings-appearance-panel .admin-card:nth-of-type(3) > h2',
+};
+function _visRowKey(row) {
+  const inp = row.querySelector('[data-ui-key], [data-privacy-key]');
+  return inp?.dataset.uiKey || inp?.dataset.privacyKey;
+}
+function applyVisLabels() {
+  if (!modalEl) return;
+  Object.entries(_VIS_SECTION_I18N).forEach(([key, sel]) => {
+    const h2 = modalEl.querySelector(sel);
+    if (!h2) return;
+    const svg = h2.querySelector('svg');
+    const svgHtml = svg ? svg.outerHTML : '';
+    h2.innerHTML = svgHtml + '<span>' + t(key) + '</span>';
+  });
+  modalEl.querySelectorAll('.settings-appearance-panel .vis-row').forEach(row => {
+    const key = _visRowKey(row);
+    const cfg = _VIS_I18N[key];
+    if (!cfg) return;
+    const labelEl = row.querySelector('.vis-label');
+    if (!labelEl) return;
+    if (cfg[1]) {
+      let hint = t(cfg[1]);
+      if (key === 'sidebar-settings-btn') {
+        hint = hint.replace('/settings', '<code>/settings</code>');
+      }
+      if (key === 'show-thinking') {
+        hint = hint.replace('&lt;think&gt;', '<code>&lt;think&gt;</code>');
+      }
+      labelEl.innerHTML = '<span>' + t(cfg[0]) + '</span> <span class="vis-hint">' + hint + '</span>';
+    } else {
+      labelEl.textContent = t(cfg[0]);
+    }
+  });
+}
+export function localizeSettingsPanels() {
+  _applySearchProviderOptionLabels();
+  const _provSel = el('set-searchProvider');
+  const _pickerMenu = el('search-provider-menu');
+  const _pickerBtn = el('search-provider-btn');
+  if (_provSel && _pickerMenu && _pickerMenu.children.length) {
+    const _cur = _pickerBtn?.querySelector('.adm-provider-name');
+    const _opt = _provSel.selectedOptions[0];
+    if (_cur && _opt) _cur.textContent = _opt.textContent;
+    _pickerMenu.querySelectorAll('.adm-provider-item').forEach(item => {
+      const o = _provSel.querySelector('option[value="' + item.dataset.value + '"]');
+      const span = item.querySelector('span:last-child');
+      if (o && span) span.textContent = o.textContent;
+    });
+  }
+  applyVisLabels();
+  document.querySelectorAll('#settings-modal [data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n);
+    if (v !== el.dataset.i18n) el.textContent = v;
+  });
+  document.querySelectorAll('#settings-modal [data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('#settings-modal [data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+}
 function initAppearance() {
+  applyVisLabels();
   syncAppearanceCheckboxes();
   syncPrivacyCheckboxes();
 
@@ -1594,7 +1721,7 @@ function initAppearance() {
       if (window.UI_VIS_ADMIN_ONLY && window.UI_VIS_ADMIN_ONLY.has(key) && !chk.checked && !window._isAdmin) {
         chk.checked = true;
         if (uiModule && uiModule.showToast) {
-          uiModule.showToast('Only admins can hide Settings.');
+          uiModule.showToast(t('toast.only_admins_can_hide'));
         }
         return;
       }
@@ -1607,17 +1734,17 @@ function initAppearance() {
         try {
           ok = await (uiModule && uiModule.styledConfirm
             ? uiModule.styledConfirm(
-                'Hide the Settings cog?\n\nYou can re-open this panel any time by typing /settings in the chat input.',
-                { confirmText: 'Hide', cancelText: 'Cancel' }
+                t('settings.hide_settings_confirm'),
+                { confirmText: t('settings.hide_settings_confirm_btn'), cancelText: t('common.cancel') }
               )
-            : Promise.resolve(window.confirm('Hide the Settings cog?\n\nYou can re-open this panel any time by typing /settings in the chat input.')));
+            : Promise.resolve(window.confirm(t('settings.hide_settings_confirm'))));
         } catch (_) { ok = false; }
         if (!ok) {
           chk.checked = true;
           return;
         }
         if (uiModule && uiModule.showToast) {
-          uiModule.showToast('Settings cog hidden — type /settings to bring it back.', 5000);
+          uiModule.showToast(t('toast.settings_hidden'), 5000);
         }
       }
 
@@ -1717,33 +1844,33 @@ const SHORTCUT_ICONS = {
 };
 
 const SHORTCUT_LABELS = {
-  search:         'Search conversations',
-  toggle_sidebar: 'Toggle sidebar',
-  new_session:    'New session',
-  fav_session:    'Favorite session',
-  delete_session: 'Delete session',
-  cancel:         'Cancel / close',
-  tts:            'Play/stop TTS',
-  incognito:      'Toggle incognito',
-  settings:       'Toggle Window',
-  focus_input:    'Focus chat input',
-  open_calendar:  'Open Calendar',
-  open_compare:   'Open Compare',
-  open_cookbook:  'Open Cookbook',
-  open_research:  'Open Deep Research',
-  open_gallery:   'Open Gallery',
-  open_library:   'Open Library',
-  open_memory:    'Open Memory',
-  open_notes:     'Open Notes',
-  open_tasks:     'Open Tasks',
-  open_theme:     'Open Theme',
+  search:         'settings.shortcut.search',
+  toggle_sidebar: 'settings.shortcut.toggle_sidebar',
+  new_session:    'settings.shortcut.new_session',
+  fav_session:    'settings.shortcut.fav_session',
+  delete_session: 'settings.shortcut.delete_session',
+  cancel:         'settings.shortcut.cancel',
+  tts:            'settings.shortcut.tts',
+  incognito:      'settings.shortcut.incognito',
+  settings:       'settings.shortcut.settings',
+  focus_input:    'settings.shortcut.focus_input',
+  open_calendar:  'settings.shortcut.open_calendar',
+  open_compare:   'settings.shortcut.open_compare',
+  open_cookbook:  'settings.shortcut.open_cookbook',
+  open_research:  'settings.shortcut.open_research',
+  open_gallery:   'settings.shortcut.open_gallery',
+  open_library:   'settings.shortcut.open_library',
+  open_memory:    'settings.shortcut.open_memory',
+  open_notes:     'settings.shortcut.open_notes',
+  open_tasks:     'settings.shortcut.open_tasks',
+  open_theme:     'settings.shortcut.open_theme',
 };
 
 const SHORTCUT_CATEGORIES = [
-  { name: 'Navigation', keys: ['search', 'toggle_sidebar', 'focus_input', 'settings'] },
-  { name: 'Sessions', keys: ['new_session', 'fav_session', 'delete_session'] },
-  { name: 'Tools', keys: ['incognito', 'tts', 'cancel'] },
-  { name: 'Open Tools', keys: ['open_calendar', 'open_compare', 'open_cookbook', 'open_research', 'open_gallery', 'open_library', 'open_memory', 'open_notes', 'open_tasks', 'open_theme'] },
+  { name: 'settings.shortcut_cat.navigation', keys: ['search', 'toggle_sidebar', 'focus_input', 'settings'] },
+  { name: 'settings.shortcut_cat.sessions', keys: ['new_session', 'fav_session', 'delete_session'] },
+  { name: 'settings.shortcut_cat.tools', keys: ['incognito', 'tts', 'cancel'] },
+  { name: 'settings.shortcut_cat.open_tools', keys: ['open_calendar', 'open_compare', 'open_cookbook', 'open_research', 'open_gallery', 'open_library', 'open_memory', 'open_notes', 'open_tasks', 'open_theme'] },
 ];
 
 function _formatKeyCaps(combo) {
@@ -1811,7 +1938,7 @@ async function initShortcuts() {
     for (const cat of SHORTCUT_CATEGORIES) {
       const catHeader = document.createElement('div');
       catHeader.className = 'shortcut-category';
-      catHeader.textContent = cat.name;
+      catHeader.textContent = t(cat.name);
       listEl.appendChild(catHeader);
 
       for (const action of cat.keys) {
@@ -1819,20 +1946,20 @@ async function initShortcuts() {
         const combo = keybinds[action];
         // Unbound shortcuts (empty combo) still render so the user can
         // assign one \u2014 they show a "Set" affordance instead of keycaps.
-        const label = SHORTCUT_LABELS[action] || action;
+        const label = t(SHORTCUT_LABELS[action] || action);
         const icon = SHORTCUT_ICONS[action] || '';
         const isCustom = combo !== (SHORTCUT_DEFAULTS[action] || '');
         const hasConflict = combo && conflicts.has(action);
         const row = document.createElement('div');
         row.className = 'shortcut-row' + (hasConflict ? ' shortcut-conflict' : '');
         row.dataset.action = action;
-        const keyContent = combo ? _formatKeyCaps(combo) : '<span class="shortcut-unset">Set</span>';
+        const keyContent = combo ? _formatKeyCaps(combo) : '<span class="shortcut-unset">' + t('settings.shortcut_set') + '</span>';
         row.innerHTML = `
-          <span class="shortcut-label"><span class="shortcut-icon">${icon}</span>${esc(label)}${hasConflict ? '<span class="shortcut-warn" title="Duplicate shortcut">!</span>' : ''}</span>
+          <span class="shortcut-label"><span class="shortcut-icon">${icon}</span>${esc(label)}${hasConflict ? '<span class="shortcut-warn" title="' + t('settings.shortcut_duplicate') + '">!</span>' : ''}</span>
           <div class="shortcut-controls">
             <span class="shortcut-hint" hidden></span>
-            <button class="shortcut-key${combo ? '' : ' shortcut-key-unset'}" data-action="${action}" title="Click to rebind">${keyContent}</button>
-            <button class="shortcut-action-btn ${isCustom ? 'is-reset' : ''}" data-action="${action}" title="${isCustom ? 'Reset to default' : 'Confirm'}" style="${isCustom ? '' : 'visibility:hidden'}">
+            <button class="shortcut-key${combo ? '' : ' shortcut-key-unset'}" data-action="${action}" title="${t('settings.shortcut_rebind')}">${keyContent}</button>
+            <button class="shortcut-action-btn ${isCustom ? 'is-reset' : ''}" data-action="${action}" title="${isCustom ? t('settings.reset_default') : t('settings.confirm')}" style="${isCustom ? '' : 'visibility:hidden'}">
               ${isCustom ? '\u21A9' : '\u2713'}
             </button>
           </div>
@@ -1871,16 +1998,14 @@ async function initShortcuts() {
     });
 
     btn.classList.add('listening');
-    btn.textContent = 'Press keys...';
-    // Show confirm button
+    btn.textContent = t('settings.press_keys');
     actionBtn.textContent = '\u2713';
     actionBtn.classList.remove('is-reset');
     actionBtn.style.visibility = 'visible';
-    actionBtn.title = 'Confirm';
-    // Hint: tell the user how to commit / cancel the rebind.
+    actionBtn.title = t('settings.confirm');
     if (hintEl) {
       hintEl.hidden = false;
-      hintEl.textContent = 'press a key';
+      hintEl.textContent = t('settings.press_a_key');
     }
 
     let pendingCombo = null;
@@ -1907,7 +2032,7 @@ async function initShortcuts() {
         if (isCustom) {
           actionBtn.textContent = '\u21A9';
           actionBtn.classList.add('is-reset');
-          actionBtn.title = 'Reset to default';
+          actionBtn.title = t('settings.reset_default');
         } else {
           actionBtn.style.visibility = 'hidden';
         }
@@ -1929,7 +2054,7 @@ async function initShortcuts() {
       pendingCombo = combo;
       btn.innerHTML = _formatKeyCaps(combo);
       // Now that a combo is captured, prompt to commit with Enter.
-      if (hintEl) hintEl.textContent = '\u21B5 Enter to save';
+      if (hintEl) hintEl.textContent = t('settings.enter_to_save');
     }
 
     function cleanup() {
@@ -1981,7 +2106,7 @@ function initAccount() {
       const roleEl = el('settings-account-role');
       const avatarEl = el('settings-account-avatar');
       if (nameEl) nameEl.textContent = d.username || 'Unknown';
-      if (roleEl) roleEl.textContent = d.is_admin ? 'Admin' : 'User';
+      if (roleEl) roleEl.textContent = d.is_admin ? t('settings.account.role_admin') : t('settings.account.role_user');
       if (avatarEl) {
         const initial = (d.username || '?')[0].toUpperCase();
         avatarEl.textContent = initial;
@@ -1997,9 +2122,9 @@ function initAccount() {
       const nw = el('settings-pw-new').value;
       const conf = el('settings-pw-confirm').value;
       msgEl.style.color = '';
-      if (!cur || !nw) { msgEl.textContent = 'Fill in all fields'; msgEl.style.color = 'var(--red)'; return; }
-      if (nw.length < 8) { msgEl.textContent = 'Min 8 characters'; msgEl.style.color = 'var(--red)'; return; }
-      if (nw !== conf) { msgEl.textContent = 'Passwords don\'t match'; msgEl.style.color = 'var(--red)'; return; }
+      if (!cur || !nw) { msgEl.textContent = t('settings.fill_all_fields'); msgEl.style.color = 'var(--red)'; return; }
+      if (nw.length < 8) { msgEl.textContent = t('settings.min_8_chars'); msgEl.style.color = 'var(--red)'; return; }
+      if (nw !== conf) { msgEl.textContent = t('settings.passwords_no_match'); msgEl.style.color = 'var(--red)'; return; }
       saveBtn.disabled = true;
       try {
         const res = await fetch('/api/auth/change-password', {
@@ -2009,7 +2134,7 @@ function initAccount() {
         });
         if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Failed'); }
         msgEl.style.color = 'var(--green)';
-        msgEl.textContent = 'Password updated';
+        msgEl.textContent = t('settings.password_updated');
         el('settings-pw-current').value = '';
         el('settings-pw-new').value = '';
         el('settings-pw-confirm').value = '';
@@ -2033,18 +2158,18 @@ function initAccount() {
           // 2FA is ON — show disable option
           tfaContent.innerHTML = `
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-              <span style="color:var(--color-save-green, #4caf50);font-size:12px;font-weight:600;">&#x2713; Enabled</span>
-              <span style="font-size:11px;opacity:0.5;">Authenticator app required on login</span>
+              <span style="color:var(--color-save-green, #4caf50);font-size:12px;font-weight:600;">&#x2713; ${t('settings.tfa_enabled')}</span>
+              <span style="font-size:11px;opacity:0.5;">${t('settings.tfa_auth_required')}</span>
             </div>
-            <input id="tfa-disable-pw" type="password" placeholder="Enter password to disable" autocomplete="current-password" style="padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:inherit;font-size:12px;width:100%;box-sizing:border-box;margin-bottom:6px;">
+            <input id="tfa-disable-pw" type="password" placeholder="${t('settings.tfa_disable_pw_placeholder')}" autocomplete="current-password" style="padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:inherit;font-size:12px;width:100%;box-sizing:border-box;margin-bottom:6px;">
             <div class="settings-row" style="justify-content:flex-end;">
               <span id="tfa-msg" style="font-size:11px;margin-right:auto;"></span>
-              <button class="admin-btn-add" id="tfa-disable-btn" style="opacity:0.7;">Disable 2FA</button>
+              <button class="admin-btn-add" id="tfa-disable-btn" style="opacity:0.7;">${t('settings.tfa_disable_btn')}</button>
             </div>`;
           el('tfa-disable-btn').addEventListener('click', async () => {
             const pw = el('tfa-disable-pw').value;
             const msg = el('tfa-msg');
-            if (!pw) { msg.textContent = 'Enter your password'; msg.style.color = 'var(--red)'; return; }
+            if (!pw) { msg.textContent = t('settings.tfa_enter_password'); msg.style.color = 'var(--red)'; return; }
             try {
               const r = await fetch('/api/auth/2fa/disable', {
                 method: 'POST', credentials: 'same-origin',
@@ -2058,10 +2183,10 @@ function initAccount() {
         } else {
           // 2FA is OFF — show setup button
           tfaContent.innerHTML = `
-            <div style="font-size:12px;opacity:0.6;margin-bottom:8px;">Add an extra layer of security with an authenticator app (Aegis, Google Authenticator, etc.)</div>
+            <div style="font-size:12px;opacity:0.6;margin-bottom:8px;">${t('settings.tfa_setup_desc')}</div>
             <div class="settings-row" style="justify-content:flex-end;">
               <span id="tfa-msg" style="font-size:11px;margin-right:auto;"></span>
-              <button class="admin-btn-add" id="tfa-setup-btn">Set Up 2FA</button>
+              <button class="admin-btn-add" id="tfa-setup-btn">${t('settings.tfa_setup_btn')}</button>
             </div>`;
           el('tfa-setup-btn').addEventListener('click', async () => {
             const msg = el('tfa-msg');
@@ -2075,21 +2200,21 @@ function initAccount() {
                   <img src="${setup.qr_code}" alt="QR Code" style="border-radius:8px;max-width:200px;">
                 </div>
                 <div style="font-size:11px;opacity:0.5;text-align:center;margin-bottom:8px;">
-                  Scan with your authenticator app, or enter manually:
+                  ${t('settings.tfa_scan_hint')}
                 </div>
                 <div style="font-family:monospace;font-size:12px;text-align:center;padding:6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;word-break:break-all;user-select:all;cursor:text;">${setup.secret}</div>
-                <input id="tfa-verify-code" type="text" placeholder="Enter 6-digit code to verify" autocomplete="one-time-code" inputmode="numeric" maxlength="8" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:inherit;font-size:13px;box-sizing:border-box;text-align:center;letter-spacing:3px;margin-bottom:6px;">
+                <input id="tfa-verify-code" type="text" placeholder="${t('settings.tfa_verify_placeholder')}" autocomplete="one-time-code" inputmode="numeric" maxlength="8" style="width:100%;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:inherit;font-size:13px;box-sizing:border-box;text-align:center;letter-spacing:3px;margin-bottom:6px;">
                 <div class="settings-row" style="justify-content:flex-end;">
                   <span id="tfa-msg" style="font-size:11px;margin-right:auto;"></span>
-                  <button class="admin-btn-add" id="tfa-cancel-btn" style="opacity:0.5;">Cancel</button>
-                  <button class="admin-btn-add" id="tfa-verify-btn">Verify & Enable</button>
+                  <button class="admin-btn-add" id="tfa-cancel-btn" style="opacity:0.5;">${t('common.cancel')}</button>
+                  <button class="admin-btn-add" id="tfa-verify-btn">${t('settings.tfa_verify_enable')}</button>
                 </div>`;
               el('tfa-verify-code').focus();
               el('tfa-cancel-btn').addEventListener('click', () => render2FA());
               el('tfa-verify-btn').addEventListener('click', async () => {
                 const code = el('tfa-verify-code').value.trim();
                 const vmsg = el('tfa-msg');
-                if (!code) { vmsg.textContent = 'Enter the code'; vmsg.style.color = 'var(--red)'; return; }
+                if (!code) { vmsg.textContent = t('settings.tfa_enter_code'); vmsg.style.color = 'var(--red)'; return; }
                 try {
                   const vr = await fetch('/api/auth/2fa/confirm', {
                     method: 'POST', credentials: 'same-origin',
@@ -2101,10 +2226,10 @@ function initAccount() {
                   // Show backup codes
                   const codes = result.backup_codes || [];
                   tfaContent.innerHTML = `
-                    <div style="color:var(--color-save-green, #4caf50);font-size:13px;font-weight:600;margin-bottom:8px;">&#x2713; 2FA Enabled!</div>
-                    <div style="font-size:12px;opacity:0.7;margin-bottom:8px;">Save these backup codes somewhere safe. Each can be used once if you lose your authenticator:</div>
+                    <div style="color:var(--color-save-green, #4caf50);font-size:13px;font-weight:600;margin-bottom:8px;">&#x2713; ${t('settings.tfa_enabled_title')}</div>
+                    <div style="font-size:12px;opacity:0.7;margin-bottom:8px;">${t('settings.tfa_backup_hint')}</div>
                     <div style="font-family:monospace;font-size:12px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;columns:2;column-gap:16px;margin-bottom:8px;">${codes.map(c => '<div style="margin-bottom:2px;">' + c + '</div>').join('')}</div>
-                    <button class="admin-btn-add" id="tfa-done-btn">Done</button>`;
+                    <button class="admin-btn-add" id="tfa-done-btn">${t('common.done')}</button>`;
                   el('tfa-done-btn').addEventListener('click', () => render2FA());
                 } catch (e) { vmsg.textContent = e.message; vmsg.style.color = 'var(--red)'; }
               });
@@ -2112,7 +2237,7 @@ function initAccount() {
           });
         }
       } catch (_) {
-        tfaContent.innerHTML = '<div style="font-size:11px;opacity:0.4;">Could not load 2FA status</div>';
+        tfaContent.innerHTML = '<div style="font-size:11px;opacity:0.4;">' + t('settings.tfa_load_failed') + '</div>';
       }
     }
     render2FA();
@@ -2206,12 +2331,12 @@ async function initReminderSettings() {
             body: JSON.stringify({ app_public_url: val }),
           });
           if (pubUrlMsg) {
-            pubUrlMsg.textContent = val ? 'Saved' : 'Cleared (deep-links disabled)';
+            pubUrlMsg.textContent = val ? t('settings.reminders.pub_url_saved') : t('settings.reminders.pub_url_cleared');
             pubUrlMsg.style.color = 'var(--green,#50fa7b)';
             setTimeout(() => { pubUrlMsg.textContent = ''; }, 2000);
           }
         } catch (_) {
-          if (pubUrlMsg) { pubUrlMsg.textContent = 'Save failed'; pubUrlMsg.style.color = 'var(--red)'; }
+          if (pubUrlMsg) { pubUrlMsg.textContent = t('settings.reminders.pub_url_save_failed'); pubUrlMsg.style.color = 'var(--red)'; }
         }
       }, 600);
     });
@@ -2253,7 +2378,7 @@ async function initReminderSettings() {
 
   if (!smtpConfigured && emailOpt) {
     emailOpt.disabled = true;
-    emailOpt.textContent = 'Email (add an account in Integrations)';
+    emailOpt.textContent = t('settings.email_no_account');
   }
 
   // Detect whether ntfy integration exists — try admin endpoint, fall back to
@@ -2279,7 +2404,7 @@ async function initReminderSettings() {
 
   if (!ntfyConfigured && ntfyOpt) {
     ntfyOpt.disabled = true;
-    ntfyOpt.textContent = 'ntfy (add in Integrations first)';
+    ntfyOpt.textContent = t('settings.ntfy_no_account');
   }
 
   const emailFromRow = el('set-reminder-email-from-row');
@@ -2301,11 +2426,11 @@ async function initReminderSettings() {
   function applyReminderChannelAvailability() {
     if (emailOpt) {
       emailOpt.disabled = !smtpConfigured;
-      emailOpt.textContent = smtpConfigured ? 'Email' : 'Email (add an account in Integrations)';
+      emailOpt.textContent = smtpConfigured ? t('settings.reminders.channel_email') : t('settings.reminders.email_need_account');
     }
     if (ntfyOpt) {
       ntfyOpt.disabled = !ntfyConfigured;
-      ntfyOpt.textContent = ntfyConfigured ? 'ntfy' : 'ntfy (add in Integrations first)';
+      ntfyOpt.textContent = ntfyConfigured ? 'ntfy' : t('settings.ntfy_add_first');
     }
   }
 
@@ -2363,9 +2488,9 @@ async function initReminderSettings() {
   // regardless of channel). The hint should make that clear so
   // users don't think they have to choose between channels.
   const CHANNEL_HINTS = {
-    browser: 'Reminders appear as browser notifications inside Odysseus.',
-    email: 'Reminders are emailed AND shown as a browser notification.',
-    ntfy: 'Reminders are pushed via ntfy AND shown as a browser notification.',
+    browser: t('settings.reminders.hint_browser'),
+    email: t('settings.reminders.hint_email'),
+    ntfy: t('settings.reminders.hint_ntfy'),
   };
 
   applyReminderChannelAvailability();
@@ -2452,7 +2577,7 @@ async function initReminderSettings() {
   if (testBtn) {
     testBtn.addEventListener('click', async () => {
       testBtn.disabled = true;
-      if (testMsg) { testMsg.textContent = 'Sending…'; testMsg.style.color = 'var(--fg)'; }
+      if (testMsg) { testMsg.textContent = t('settings.reminders.test_sending'); testMsg.style.color = 'var(--fg)'; }
       // Whirlpool loader right next to the "Sending…" text while it sends.
       let _testSpin = null;
       try {
@@ -2469,8 +2594,8 @@ async function initReminderSettings() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             note_id: 'test-' + Date.now(),
-            title: 'Test Reminder',
-            body: 'This is a test reminder to verify your settings are working.',
+            title: t('settings.reminders.test_title_note'),
+            body: t('settings.reminders.test_body'),
           }),
         });
         const data = await res.json();
@@ -2481,23 +2606,23 @@ async function initReminderSettings() {
         if (channelSel.value === 'ntfy' && !data.ntfy_sent) {
           throw new Error(data.ntfy_error || 'ntfy reminder was not sent');
         }
-        let status = 'Delivered via ' + channelSel.value;
-        if (data.synthesis) status += ' (AI: "' + data.synthesis.slice(0, 60) + '...")';
-        if (data.email_sent) status += ' — email sent';
-        if (data.ntfy_sent) status += ' — ntfy sent';
+        let status = t('settings.reminders.test_delivered').replace('{channel}', channelSel.value);
+        if (data.synthesis) status += t('settings.reminders.test_ai_suffix').replace('{text}', data.synthesis.slice(0, 60));
+        if (data.email_sent) status += t('settings.reminders.test_email_sent');
+        if (data.ntfy_sent) status += t('settings.reminders.test_ntfy_sent');
         if (testMsg) { testMsg.textContent = status; testMsg.style.color = 'var(--green, #50fa7b)'; }
         // Also fire a browser notification so user can see it
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
-            new Notification('Test Reminder', {
-              body: data.synthesis || 'This is a test reminder.',
+            new Notification(t('settings.reminders.test_notification_title'), {
+              body: data.synthesis || t('settings.reminders.test_body'),
               tag: 'reminder-test',
               icon: '/static/favicon.ico',
             });
           } catch {}
         }
       } catch (e) {
-        if (testMsg) { testMsg.textContent = 'Failed: ' + e.message; testMsg.style.color = 'var(--red)'; }
+        if (testMsg) { testMsg.textContent = t('settings.reminders.test_failed') + ': ' + e.message; testMsg.style.color = 'var(--red)'; }
       } finally {
         _stopTestSpin();
         testBtn.disabled = false;
@@ -2545,23 +2670,23 @@ async function initEmailAccountsSettings() {
   function renderRow(a) {
     const imap = a.imap_host ? `${a.imap_host}:${a.imap_port}` : '<no IMAP>';
     const badge = a.is_default
-      ? '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 6px;border-radius:3px;background:color-mix(in srgb, var(--accent,#50fa7b) 15%, transparent);color:var(--accent,#50fa7b)">Default</span>'
-      : (a.enabled ? '' : '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 6px;border-radius:3px;opacity:0.4">Disabled</span>');
+      ? '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 6px;border-radius:3px;background:color-mix(in srgb, var(--accent,#50fa7b) 15%, transparent);color:var(--accent,#50fa7b)">' + t('settings.email_default') + '</span>'
+      : (a.enabled ? '' : '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 6px;border-radius:3px;opacity:0.4">' + t('settings.email_disabled') + '</span>');
     return `<div class="email-account-row" data-acc-id="${esc(a.id)}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px">
       <div style="flex:1;min-width:0">
         <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px">${esc(a.name)} ${badge}</div>
         <div style="font-size:11px;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.imap_user || a.from_address || '')} — ${esc(imap)}</div>
       </div>
-      ${a.is_default ? '' : `<button class="admin-btn-sm email-acc-default-btn" style="font-size:10px">Make Default</button>`}
-      <button class="admin-btn-sm email-acc-edit-btn" style="font-size:10px">Edit</button>
-      <button class="admin-btn-sm email-acc-del-btn" style="font-size:10px;opacity:0.6">Delete</button>
+      ${a.is_default ? '' : `<button class="admin-btn-sm email-acc-default-btn" style="font-size:10px">${t('settings.email_make_default')}</button>`}
+      <button class="admin-btn-sm email-acc-edit-btn" style="font-size:10px">${t('common.edit')}</button>
+      <button class="admin-btn-sm email-acc-del-btn" style="font-size:10px;opacity:0.6">${t('common.delete')}</button>
     </div>`;
   }
 
   async function renderList() {
     const accs = await fetchAccounts();
     if (!accs.length) {
-      listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center">No email accounts configured</div>';
+      listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center">' + t('settings.email_no_accounts') + '</div>';
       return;
     }
     listEl.innerHTML = accs.map(renderRow).join('');
@@ -2578,7 +2703,7 @@ async function initEmailAccountsSettings() {
       });
       row.querySelector('.email-acc-del-btn')?.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!await window.styledConfirm(`Delete account "${accs.find(a => a.id === id)?.name}"?`, { confirmText: 'Delete', danger: true })) return;
+        if (!await window.styledConfirm(t('settings.email_delete_account').replace('{name}', accs.find(a => a.id === id)?.name || ''), { confirmText: t('common.delete'), danger: true })) return;
         await fetch(`/api/email/accounts/${id}`, { method: 'DELETE', credentials: 'same-origin' });
         renderList();
       });
@@ -2614,7 +2739,7 @@ async function initEmailAccountsSettings() {
       .join('');
     const _smtpSecurity = (acct) => acct?.smtp_security || ((parseInt(acct?.smtp_port || 465) === 587) ? 'starttls' : 'ssl');
     formEl.innerHTML = `
-      <h3 style="font-size:12px;margin:0 0 8px">${isEdit ? 'Edit Account' : 'New Account'}</h3>
+      <h3 style="font-size:12px;margin:0 0 8px">${isEdit ? t('settings.email_edit_account') : t('settings.email_new_account')}</h3>
       <div class="settings-col">
         <div class="settings-row"><label class="settings-label">Provider${_hint('Pick a known provider to auto-fill the IMAP and SMTP host/port. Choose Custom to type your own.')}</label><select id="eaf-provider" class="settings-select"><option value="">Custom…</option>${_providerOptions}</select></div>
         <div class="settings-row"><label class="settings-label">Name${_hint('Optional label for this account (e.g. “Work” or “Personal”). Leave blank to use the email address.')}</label><input id="eaf-name" class="settings-input" placeholder="(optional — leave blank to use email)" value="${esc(a.name || '')}"></div>
@@ -2765,7 +2890,7 @@ async function initEmailSettings() {
   // Save email config
   el('set-email-save')?.addEventListener('click', async () => {
     const msg = el('set-email-msg');
-    if (msg) msg.textContent = 'Saving...';
+    if (msg) msg.textContent = t('common.saving');
     const data = {
       imap_host: el('set-email-imap-host').value,
       imap_port: parseInt(el('set-email-imap-port').value) || 0,
@@ -2789,14 +2914,14 @@ async function initEmailSettings() {
       if (msg) msg.textContent = result.success ? '✓ Saved' : (result.error || 'Failed');
       setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
     } catch (e) {
-      if (msg) msg.textContent = 'Failed';
+      if (msg) msg.textContent = t('common.failed');
     }
   });
 
   // Save CardDAV config
   el('set-carddav-save')?.addEventListener('click', async () => {
     const msg = el('set-carddav-msg');
-    if (msg) msg.textContent = 'Saving...';
+    if (msg) msg.textContent = t('common.saving');
     const data = {
       carddav_url: el('set-carddav-url').value,
       carddav_username: el('set-carddav-user').value,
@@ -2813,7 +2938,7 @@ async function initEmailSettings() {
       if (msg) msg.textContent = result.success ? '✓ Saved' : (result.error || 'Failed');
       setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
     } catch (e) {
-      if (msg) msg.textContent = 'Failed';
+      if (msg) msg.textContent = t('common.failed');
     }
   });
 
@@ -2836,12 +2961,12 @@ async function initEmailSettings() {
         wrap.style.cssText = 'display:inline-flex;align-items:center;';
         wrap.appendChild(wp.element);
         const txt = document.createElement('span');
-        txt.textContent = 'Analyzing your sent emails…';
+        txt.textContent = t('settings.analyzing_emails');
         txt.style.cssText = 'font-size:12px;opacity:0.7;';
         wrap.appendChild(txt);
         msg.appendChild(wrap);
       } catch (_) {
-        msg.textContent = 'Analyzing your sent emails…';
+        msg.textContent = t('settings.analyzing_emails');
       }
     }
     try {
@@ -2853,12 +2978,12 @@ async function initEmailSettings() {
       const data = await res.json();
       if (data.success && data.style) {
         if (el('set-email-style')) el('set-email-style').value = data.style;
-        if (msg) msg.textContent = '✓ Style extracted';
+        if (msg) msg.textContent = '✓ ' + t('settings.style_extracted');
       } else {
         if (msg) msg.textContent = data.error || 'Failed';
       }
     } catch (e) {
-      if (msg) msg.textContent = 'Failed to extract';
+      if (msg) msg.textContent = t('settings.failed_to_extract');
     } finally {
       if (wp && wp.destroy) { try { wp.destroy(); } catch (_) {} }
       btn.disabled = false;
@@ -2869,7 +2994,7 @@ async function initEmailSettings() {
   // Save writing style manually
   el('set-email-style-save')?.addEventListener('click', async () => {
     const msg = el('set-email-style-msg');
-    if (msg) msg.textContent = 'Saving...';
+    if (msg) msg.textContent = t('common.saving');
     try {
       const res = await fetch('/api/email/style', {
         method: 'PUT',
@@ -2880,7 +3005,7 @@ async function initEmailSettings() {
       if (msg) msg.textContent = result.success ? '✓ Saved' : 'Failed';
       setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
     } catch (e) {
-      if (msg) msg.textContent = 'Failed';
+      if (msg) msg.textContent = t('common.failed');
     }
   });
 }
@@ -2947,11 +3072,11 @@ async function initIntegrations() {
   async function renderList() {
     try {
       const res = await fetch('/api/auth/integrations', { credentials: 'same-origin' });
-      if (!res.ok) { listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;">Admin access required</div>'; return; }
+      if (!res.ok) { listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;">' + t('settings.integrations_admin_required') + '</div>'; return; }
       const data = await res.json();
       const items = data.integrations || [];
       if (!items.length) {
-        listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center;">No integrations configured</div>';
+        listEl.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center;">' + t('settings.integrations_empty') + '</div>';
         return;
       }
       listEl.innerHTML = items.map(i => `
@@ -2961,14 +3086,14 @@ async function initIntegrations() {
             <div style="font-size:11px;opacity:0.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(i.base_url || '')}</div>
           </div>
           <div style="display:flex;gap:4px;flex-shrink:0;">
-            <button class="admin-btn-sm intg-edit-btn" data-id="${i.id}" style="font-size:11px;">Edit</button>
-            <button class="admin-btn-sm intg-del-btn" data-id="${i.id}" style="font-size:11px;opacity:0.6;">Del</button>
+            <button class="admin-btn-sm intg-edit-btn" data-id="${i.id}" style="font-size:11px;">${t('common.edit')}</button>
+            <button class="admin-btn-sm intg-del-btn" data-id="${i.id}" style="font-size:11px;opacity:0.6;">${t('settings.integrations_del')}</button>
           </div>
         </div>
       `).join('');
       listEl.querySelectorAll('.intg-edit-btn').forEach(b => b.addEventListener('click', () => startEdit(b.dataset.id)));
       listEl.querySelectorAll('.intg-del-btn').forEach(b => b.addEventListener('click', () => doDelete(b.dataset.id)));
-    } catch (e) { listEl.innerHTML = '<div style="padding:12px;color:var(--red);font-size:12px;">Failed to load</div>'; }
+    } catch (e) { listEl.innerHTML = '<div style="padding:12px;color:var(--red);font-size:12px;">' + t('settings.integrations_failed_load') + '</div>'; }
   }
 
   function _esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -2976,7 +3101,7 @@ async function initIntegrations() {
   // Start editing
   async function startEdit(id) {
     editingId = id;
-    formTitle.textContent = 'Edit Integration';
+    formTitle.textContent = t('settings.edit_integration');
     // Fetch full data (with unmasked key from a dedicated edit fetch — we'll just load what we have)
     try {
       const res = await fetch('/api/auth/integrations', { credentials: 'same-origin' });
@@ -2989,7 +3114,7 @@ async function initIntegrations() {
       authTypeSel.value = item.auth_type || 'none';
       authHeaderIn.value = item.auth_header || '';
       keyIn.value = ''; // masked — user re-enters if changing
-      keyIn.placeholder = item.api_key ? 'Leave blank to keep current' : 'API key or token';
+      keyIn.placeholder = item.api_key ? t('settings.api_key_keep') : t('settings.api_key_placeholder');
       descIn.value = item.description || '';
       syncAuthRow();
       formCard.style.display = '';
@@ -2999,14 +3124,14 @@ async function initIntegrations() {
   // Show add form
   addBtn.addEventListener('click', () => {
     editingId = null;
-    formTitle.textContent = 'Add Integration';
+    formTitle.textContent = t('settings.add_integration');
     presetSel.value = '';
     nameIn.value = '';
     urlIn.value = '';
     authTypeSel.value = 'header';
     authHeaderIn.value = '';
     keyIn.value = '';
-    keyIn.placeholder = 'API key or token';
+    keyIn.placeholder = t('settings.api_key_placeholder');
     descIn.value = '';
     statusEl.textContent = '';
     syncAuthRow();
@@ -3029,34 +3154,34 @@ async function initIntegrations() {
     };
     if (presetSel.value) payload.preset = presetSel.value;
     if (keyIn.value.trim()) payload.api_key = keyIn.value.trim();
-    if (!payload.name) { statusEl.textContent = 'Name required'; statusEl.style.color = 'var(--red)'; return; }
-    if (!payload.base_url) { statusEl.textContent = 'URL required'; statusEl.style.color = 'var(--red)'; return; }
+    if (!payload.name) { statusEl.textContent = t('settings.name_required'); statusEl.style.color = 'var(--red)'; return; }
+    if (!payload.base_url) { statusEl.textContent = t('settings.url_required'); statusEl.style.color = 'var(--red)'; return; }
 
     try {
       const url = editingId ? `/api/auth/integrations/${editingId}` : '/api/auth/integrations';
       const method = editingId ? 'PUT' : 'POST';
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'same-origin' });
       if (res.ok) {
-        statusEl.textContent = 'Saved';
+        statusEl.textContent = t('common.saved');
         statusEl.style.color = 'var(--green, #98c379)';
         formCard.style.display = 'none';
         await renderList();
         notifyIntegrationsChanged();
       } else {
         const err = await res.json().catch(() => ({}));
-        statusEl.textContent = err.detail || 'Save failed';
+        statusEl.textContent = err.detail || t('common.failed');
         statusEl.style.color = 'var(--red)';
       }
     } catch (e) {
-      statusEl.textContent = 'Error saving';
+      statusEl.textContent = t('common.error_saving');
       statusEl.style.color = 'var(--red)';
     }
   });
 
   // Test
   testBtn.addEventListener('click', async () => {
-    if (!editingId) { statusEl.textContent = 'Save first, then test'; statusEl.style.color = 'var(--fg)'; return; }
-    statusEl.textContent = 'Testing...';
+    if (!editingId) { statusEl.textContent = t('settings.save_first'); statusEl.style.color = 'var(--fg)'; return; }
+    statusEl.textContent = t('settings.testing');
     statusEl.style.color = 'var(--fg)';
     try {
       const res = await fetch(`/api/auth/integrations/${editingId}/test`, { method: 'POST', credentials: 'same-origin' });
@@ -3064,7 +3189,7 @@ async function initIntegrations() {
       statusEl.textContent = data.message || (data.ok ? 'OK' : 'Failed');
       statusEl.style.color = data.ok ? 'var(--green, #98c379)' : 'var(--red)';
     } catch (e) {
-      statusEl.textContent = 'Connection failed';
+      statusEl.textContent = t('settings.connection_failed');
       statusEl.style.color = 'var(--red)';
     }
   });
@@ -3170,21 +3295,21 @@ async function initUnifiedIntegrations() {
   }
 
   function renderCard(item) {
-    const t = INTG_TYPES[item.type] || INTG_TYPES.api;
+    const typeMeta = INTG_TYPES[item.type] || INTG_TYPES.api;
     // Static enabled/disabled indicator — same dot every integration
     // type gets. (The clickable glow-on-test variant for email was
     // removed earlier; this matches the API/CalDAV/MCP pattern.)
     const statusDot = item.enabled
-      ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--green,#50fa7b);flex-shrink:0" title="Active"></span>'
-      : '<span style="width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:0.3;flex-shrink:0" title="Disabled"></span>';
-    return `<div class="intg-card" data-intg-id="${item.id}" data-intg-type="${item.type}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:pointer" title="Click to edit">
-      <span style="opacity:0.6;flex-shrink:0">${t.icon}</span>
+      ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--green,#50fa7b);flex-shrink:0" title="' + t('settings.intg_active') + '"></span>'
+      : '<span style="width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:0.3;flex-shrink:0" title="' + t('settings.email_disabled') + '"></span>';
+    return `<div class="intg-card" data-intg-id="${item.id}" data-intg-type="${item.type}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:pointer" title="${t('settings.intg_click_edit')}">
+      <span style="opacity:0.6;flex-shrink:0">${typeMeta.icon}</span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px">${item.name} <span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 5px;border:1px solid color-mix(in srgb, var(--accent, var(--red)) 50%, transparent);border-radius:3px;color:var(--accent, var(--red));background:color-mix(in srgb, var(--accent, var(--red)) 12%, transparent);">${t.label}</span></div>
+        <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px">${item.name} <span style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:1px 5px;border:1px solid color-mix(in srgb, var(--accent, var(--red)) 50%, transparent);border-radius:3px;color:var(--accent, var(--red));background:color-mix(in srgb, var(--accent, var(--red)) 12%, transparent);">${typeMeta.label}</span></div>
         <div style="font-size:11px;opacity:0.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.detail || ''}</div>
       </div>
       ${statusDot}
-      <button class="admin-btn-sm intg-del-btn" data-intg-id="${item.id}" data-intg-type="${item.type}" title="Remove" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--red);opacity:0.55;display:inline-flex;align-items:center;justify-content:center;">
+      <button class="admin-btn-sm intg-del-btn" data-intg-id="${item.id}" data-intg-type="${item.type}" title="${t('settings.intg_remove_title')}" style="background:none;border:none;padding:4px;cursor:pointer;color:var(--red);opacity:0.55;display:inline-flex;align-items:center;justify-content:center;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>`;
@@ -3195,10 +3320,10 @@ async function initUnifiedIntegrations() {
     const noticeHtml = integrationNotice ? `
       <div class="intg-followup-note" style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:8px;border:1px solid color-mix(in srgb, var(--accent, var(--red)) 35%, transparent);border-left:3px solid var(--accent, var(--red));border-radius:5px;background:color-mix(in srgb, var(--accent, var(--red)) 8%, transparent);font-size:11px;">
         <span style="flex:1;line-height:1.35">${integrationNotice}</span>
-        <button type="button" class="admin-btn-sm intg-open-email-settings" style="white-space:nowrap;">Email settings</button>
+        <button type="button" class="admin-btn-sm intg-open-email-settings" style="white-space:nowrap;">${t('settings.email_settings_btn')}</button>
       </div>` : '';
     if (items.length === 0) {
-      listEl.innerHTML = noticeHtml + '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center">No integrations configured</div>';
+      listEl.innerHTML = noticeHtml + '<div style="padding:12px;opacity:0.5;font-size:12px;text-align:center">' + t('settings.integrations_empty') + '</div>';
     } else {
       listEl.innerHTML = noticeHtml + items.map(renderCard).join('');
     }
@@ -3222,7 +3347,7 @@ async function initUnifiedIntegrations() {
     listEl.querySelectorAll('.intg-del-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!await window.styledConfirm('Remove this integration?', { confirmText: 'Remove', danger: true })) return;
+        if (!await window.styledConfirm(t('settings.intg_remove_confirm'), { confirmText: t('common.remove'), danger: true })) return;
         const type = btn.dataset.intgType;
         const id = btn.dataset.intgId;
         try {
@@ -3369,12 +3494,12 @@ async function initUnifiedIntegrations() {
   async function showCalDavForm() {
     formEl.innerHTML = `
       <div class="admin-card" style="margin-top:8px">
-        <h2 style="font-size:13px">Calendar (CalDAV)</h2>
+        <h2 style="font-size:13px">${t('settings.caldav_title')}</h2>
         <div class="settings-col">
-          <div class="settings-row"><label class="settings-label">Server URL</label><input id="uf-caldav-url" class="settings-input" placeholder="http://localhost:5232/user"></div>
-          <div class="settings-row"><label class="settings-label">Username</label><input id="uf-caldav-user" class="settings-input"></div>
-          <div class="settings-row"><label class="settings-label">Password</label><input id="uf-caldav-pass" class="settings-input" type="password"></div>
-          <div class="settings-row" style="margin-top:4px"><button class="admin-btn-sm" id="uf-caldav-save">Save</button><button class="admin-btn-sm" id="uf-caldav-test" style="opacity:0.7">Test</button><button class="admin-btn-sm" id="uf-caldav-cancel" style="opacity:0.7">Cancel</button><span id="uf-caldav-msg" style="font-size:11px"></span></div>
+          <div class="settings-row"><label class="settings-label">${t('settings.server_url')}</label><input id="uf-caldav-url" class="settings-input" placeholder="http://localhost:5232/user"></div>
+          <div class="settings-row"><label class="settings-label">${t('settings.email_username')}</label><input id="uf-caldav-user" class="settings-input"></div>
+          <div class="settings-row"><label class="settings-label">${t('settings.email_password')}</label><input id="uf-caldav-pass" class="settings-input" type="password"></div>
+          <div class="settings-row" style="margin-top:4px"><button class="admin-btn-sm" id="uf-caldav-save">${t('common.save')}</button><button class="admin-btn-sm" id="uf-caldav-test" style="opacity:0.7">${t('common.test')}</button><button class="admin-btn-sm" id="uf-caldav-cancel" style="opacity:0.7">${t('common.cancel')}</button><span id="uf-caldav-msg" style="font-size:11px"></span></div>
         </div>
       </div>`;
     try {
@@ -3400,7 +3525,7 @@ async function initUnifiedIntegrations() {
         });
         return await r.json();
       } catch (e) {
-        return { ok: false, error: 'Network error: ' + e.message };
+        return { ok: false, error: t('settings.network_error').replace('{detail}', e.message) };
       }
     };
     const _setCalDavMsg = (text, ok) => {
@@ -3414,11 +3539,11 @@ async function initUnifiedIntegrations() {
       // Test button uses. If the CalDAV server rejects the creds/URL
       // we won't persist garbage — the user gets the actual error
       // (HTTP 401, "Not found", "Connection refused", etc.) in red.
-      _setCalDavMsg('Testing…', true);
+      _setCalDavMsg(t('settings.testing'), true);
       el('uf-caldav-msg').style.color = '';
       const d = await _runCalDavTest();
       if (!d.ok) {
-        _setCalDavMsg(d.error || 'Connection failed — not saved', false);
+        _setCalDavMsg(d.error || t('settings.caldav_not_saved'), false);
         return;
       }
       try {
@@ -3431,19 +3556,19 @@ async function initUnifiedIntegrations() {
             password: el('uf-caldav-pass').value,
           }),
         });
-        _setCalDavMsg('Saved', true);
+        _setCalDavMsg(t('common.saved'), true);
         formEl.style.display = 'none';
         await renderList();
         notifyIntegrationsChanged();
       } catch (_) {
-        _setCalDavMsg('Save failed', false);
+        _setCalDavMsg(t('common.failed'), false);
       }
     });
     el('uf-caldav-test').addEventListener('click', async () => {
-      _setCalDavMsg('Testing…', true);
+      _setCalDavMsg(t('settings.testing'), true);
       el('uf-caldav-msg').style.color = '';
       const d = await _runCalDavTest();
-      _setCalDavMsg(d.ok ? 'Connected' : (d.error || 'Failed'), d.ok);
+      _setCalDavMsg(d.ok ? t('settings.connected') : (d.error || t('common.failed')), d.ok);
     });
   }
 
@@ -3451,29 +3576,29 @@ async function initUnifiedIntegrations() {
   async function showCardDavForm() {
     formEl.innerHTML = `
       <div class="admin-card" style="margin-top:8px">
-        <h2 style="font-size:13px">Contacts (CardDAV)</h2>
+        <h2 style="font-size:13px">${t('settings.carddav_title')}</h2>
         <div class="settings-col">
           <div class="settings-row"><label class="settings-label">URL</label><input id="uf-carddav-url" class="settings-input" placeholder="http://localhost:5232/user/contacts/"></div>
-          <div class="settings-row"><label class="settings-label">Username</label><input id="uf-carddav-user" class="settings-input"></div>
-          <div class="settings-row"><label class="settings-label">Password</label><input id="uf-carddav-pass" class="settings-input" type="password"></div>
-          <div class="settings-row" style="margin-top:4px"><button class="admin-btn-sm" id="uf-carddav-save">Save</button><button class="admin-btn-sm" id="uf-carddav-cancel" style="opacity:0.7">Cancel</button><span id="uf-carddav-msg" style="font-size:11px"></span></div>
+          <div class="settings-row"><label class="settings-label">${t('settings.email_username')}</label><input id="uf-carddav-user" class="settings-input"></div>
+          <div class="settings-row"><label class="settings-label">${t('settings.email_password')}</label><input id="uf-carddav-pass" class="settings-input" type="password"></div>
+          <div class="settings-row" style="margin-top:4px"><button class="admin-btn-sm" id="uf-carddav-save">${t('common.save')}</button><button class="admin-btn-sm" id="uf-carddav-cancel" style="opacity:0.7">${t('common.cancel')}</button><span id="uf-carddav-msg" style="font-size:11px"></span></div>
         </div>
       </div>
       <div class="admin-card contacts-manager" style="margin-top:8px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <h2 style="font-size:13px;margin:0;">Contacts Import <span id="cm-count" style="opacity:0.5;font-weight:normal;font-size:11px;"></span></h2>
-          <button class="admin-btn-sm" id="cm-import-btn" style="margin-left:auto;">Import</button>
-          <button class="admin-btn-sm" id="cm-export-vcf-btn">Export .vcf</button>
-          <button class="admin-btn-sm" id="cm-export-csv-btn">Export .csv</button>
-          <button class="admin-btn-sm" id="cm-add-toggle">+ Add</button>
+          <h2 style="font-size:13px;margin:0;">${t('settings.contacts_import')} <span id="cm-count" style="opacity:0.5;font-weight:normal;font-size:11px;"></span></h2>
+          <button class="admin-btn-sm" id="cm-import-btn" style="margin-left:auto;">${t('settings.contacts_import_btn')}</button>
+          <button class="admin-btn-sm" id="cm-export-vcf-btn">${t('settings.contacts_export_vcf')}</button>
+          <button class="admin-btn-sm" id="cm-export-csv-btn">${t('settings.contacts_export_csv')}</button>
+          <button class="admin-btn-sm" id="cm-add-toggle">${t('settings.contacts_add')}</button>
           <input type="file" id="cm-import-file" accept=".vcf,.csv,text/vcard,text/csv" multiple style="display:none">
         </div>
         <div id="cm-add-row" class="contacts-add-row" style="display:none;">
-          <input id="cm-add-name" class="settings-input" placeholder="Name" style="flex:1;min-width:0;">
+          <input id="cm-add-name" class="settings-input" placeholder="${t('settings.email_name')}" style="flex:1;min-width:0;">
           <input id="cm-add-email" class="settings-input" placeholder="email@example.com" style="flex:1;min-width:0;">
-          <button class="admin-btn-sm" id="cm-add-save">Save</button>
+          <button class="admin-btn-sm" id="cm-add-save">${t('common.save')}</button>
         </div>
-        <div id="cm-list" class="contacts-list"><div style="opacity:0.4;font-size:11px;padding:8px 2px;">Loading…</div></div>
+        <div id="cm-list" class="contacts-list"><div style="opacity:0.4;font-size:11px;padding:8px 2px;">${t('common.loading')}</div></div>
       </div>`;
     try {
       const r = await fetch('/api/contacts/config', { credentials: 'same-origin' }); const d = await r.json();
@@ -4308,7 +4433,7 @@ async function initUnifiedIntegrations() {
       formEl.style.display = '';
       formEl.innerHTML = `
         <div class="admin-card" style="margin-top:8px">
-          <h2 style="font-size:13px">Add Integration</h2>
+          <h2 style="font-size:13px">${t('settings.integrations.add_heading')}</h2>
           <div class="settings-col">
             <div class="settings-row"><label class="settings-label">Type</label>
               <select id="uf-type-picker" class="settings-input">
@@ -4348,6 +4473,7 @@ function syncAdminVisibility() {
 export function open(tab) {
   if (!initialized) initAll();
   syncAppearanceCheckboxes();
+  localizeSettingsPanels();
   resetWindowPlacement();
   modalEl.classList.remove('hidden');
   syncAdminVisibility();
@@ -4385,7 +4511,7 @@ export function close() {
   }
 }
 
-const settingsModule = { open, close, initIntegrations, initUnifiedIntegrations, syncAdminVisibility, refreshAiModelEndpoints };
+const settingsModule = { open, close, initIntegrations, initUnifiedIntegrations, syncAdminVisibility, refreshAiModelEndpoints, localizeSettingsPanels };
 
 
 export default settingsModule;

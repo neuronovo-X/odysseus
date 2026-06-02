@@ -22,6 +22,7 @@ import { fetchModels, _persistSelections, _modelDisplayNames, getExcludedModels,
 import { showModelSelector, disableToolToggles, restoreToolToggles, _syncToolbarIndicator } from './selector.js';
 import { _checkUnprobed, _clearProbeWaves } from './probe.js';
 import { streamToPane, _renderSearchResults, _runSynthForPane, _formatMs, registerStreamActions } from './stream.js';
+import { t } from '../i18n.js';
 import {
   stopAll, stopPane, rerollPane, shufflePanePositions, resetCompare,
   _addPane, _removePane, toggleExpandPane, togglePanePreview, copyPaneResponse,
@@ -196,7 +197,7 @@ async function deactivate(teardown) {
 /** Build the compare UI: sessions, header bar, grid of panes, vote bar, eval dropdown. */
 async function _buildCompareUI() {
   if (state._selectedModels.length < 1) {
-    if (uiModule) uiModule.showError('Select at least 1 model');
+    if (uiModule) uiModule.showError(t('compare.select_model'));
     return;
   }
 
@@ -473,7 +474,7 @@ async function _buildCompareUI() {
   }
   const msgTA = document.getElementById('message');
   if (msgTA) {
-    msgTA.placeholder = 'Enter prompt for all models...';
+    msgTA.placeholder = t('compare.prompt_placeholder');
     requestAnimationFrame(() => msgTA.focus());
   }
 
@@ -635,7 +636,7 @@ async function _executeCompare(message) {
         if (!hist) continue;
         const userMsg = document.createElement('div');
         userMsg.className = 'msg msg-user';
-        userMsg.innerHTML = '<div class="role">You</div><div class="body"></div>';
+        userMsg.innerHTML = '<div class="role">' + t('chat.role_you') + '</div><div class="body"></div>';
         userMsg.querySelector('.body').textContent = message;
         hist.appendChild(userMsg);
 
@@ -855,7 +856,7 @@ async function _executeCompare(message) {
 
       const userMsg = document.createElement('div');
       userMsg.className = 'msg msg-user';
-      userMsg.innerHTML = '<div class="role">You</div><div class="body"></div>';
+      userMsg.innerHTML = '<div class="role">' + t('chat.role_you') + '</div><div class="body"></div>';
       userMsg.querySelector('.body').textContent = message;
       hist.appendChild(userMsg);
 
@@ -956,7 +957,7 @@ async function _executeCompare(message) {
 
   } catch (err) {
     console.error('Compare error:', err);
-    if (uiModule) uiModule.showError('Compare failed: ' + err.message);
+    if (uiModule) uiModule.showError(t('compare.failed') + ': ' + err.message);
   } finally {
     state._streaming = false;
     _setSendBtn('send');
@@ -1060,7 +1061,7 @@ async function _exportCopyMarkdown(_btn) {
       document.body.appendChild(ta);
       ta.select(); document.execCommand('copy'); ta.remove();
     }
-    try { window.uiModule?.showToast?.('Copied comparison to clipboard'); } catch {}
+    try { window.uiModule?.showToast?.(t('compare.copied')); } catch {}
   } catch (e) {
     try { window.uiModule?.showToast?.('Copy failed'); } catch {}
   }

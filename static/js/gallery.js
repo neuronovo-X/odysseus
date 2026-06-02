@@ -6,6 +6,7 @@ import uiModule from './ui.js';
 import { openEditor, closeEditor, isEditorOpen } from './galleryEditor.js';
 import spinnerModule from './spinner.js';
 import { makeWindowDraggable } from './windowDrag.js';
+import { t } from './i18n.js';
 
 const API_BASE = window.location.origin;
 let _open = false;
@@ -377,9 +378,9 @@ function _renderAlbums() {
     // Order: All, then the heart, then any active tag chips (to the right of
     // both), then the active-album chip. No favorites-within-an-album view, so
     // the heart is hidden while an album is active.
-    let fhtml = `<button class="gallery-chip${!_activeAlbum && !_favoritesOnly ? ' active' : ''}" data-album="">All</button>`;
+    let fhtml = `<button class="gallery-chip${!_activeAlbum && !_favoritesOnly ? ' active' : ''}" data-album="">${t('gallery.all')}</button>`;
     if (!_activeAlbum) {
-      fhtml += `<button class="gallery-chip gallery-chip-fav${_favoritesOnly ? ' active' : ''}" data-fav="true" title="Favorites">&#9829;</button>`;
+      fhtml += `<button class="gallery-chip gallery-chip-fav${_favoritesOnly ? ' active' : ''}" data-fav="true" title="${t('gallery.favorites')}">&#9829;</button>`;
     }
     _activeTags.forEach(t => {
       fhtml += `<span class="gallery-chip gallery-chip-active-album" title="Filtered to tag — click × to remove"><span>#${_esc(t)}</span><button class="gallery-chip-clear" data-clear-tag="${_esc(t)}" aria-label="Remove tag filter">&times;</button></span>`;
@@ -448,7 +449,7 @@ function _ensureAlbumsToolbar(container) {
   container.innerHTML = `
     <div class="gallery-toolbar" id="gallery-albums-toolbar">
       <div class="gallery-search-wrap">
-        <input type="text" class="gallery-search" id="gallery-albums-search" placeholder="Search albums..." />
+        <input type="text" class="gallery-search" id="gallery-albums-search" placeholder="${t('gallery.search_albums')}" />
       </div>
       <button class="gallery-select-btn gallery-toolbar-action" id="gallery-albums-select-btn" title="Select for bulk actions" style="position:relative;top:2px;"><span style="position:relative;top:1px;">Select</span></button>
     </div>

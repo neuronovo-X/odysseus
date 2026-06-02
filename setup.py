@@ -9,6 +9,13 @@ import os
 import shutil
 import sys
 
+# Ensure UTF-8 output on Windows so Cyrillic prints correctly
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    os.system("chcp 65001 >nul 2>&1")
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
@@ -40,7 +47,7 @@ def init_database():
 
     from core.database import Base, engine
     Base.metadata.create_all(bind=engine)
-    print("  [ok] Database initialized")
+    print("  [ok] База данных инициализирована")
 
 
 def _prompt_admin_credentials():
@@ -48,22 +55,22 @@ def _prompt_admin_credentials():
     import getpass
 
     print()
-    print("  Set up your admin account:")
-    print("  (Press Enter to accept defaults)")
+    print("  Настройка учётной записи администратора:")
+    print("  (Enter — оставить значение по умолчанию)")
     print()
 
-    username = input("  Username [admin]: ").strip().lower()
+    username = input("  Имя пользователя [admin]: ").strip().lower()
     if not username:
         username = "admin"
 
     while True:
-        password = getpass.getpass("  Password: ")
+        password = getpass.getpass("  Пароль: ")
         if not password:
-            print("  Password cannot be empty.")
+            print("  Пароль не может быть пустым.")
             continue
-        confirm = getpass.getpass("  Confirm password: ")
+        confirm = getpass.getpass("  Подтвердите пароль: ")
         if password != confirm:
-            print("  Passwords don't match. Try again.")
+            print("  Пароли не совпадают. Попробуйте ещё раз.")
             continue
         break
 
@@ -74,7 +81,7 @@ def create_default_admin():
     """Create an initial admin user if none exists."""
     auth_path = os.path.join(DATA_DIR, "auth.json")
     if os.path.exists(auth_path):
-        print("  [skip] auth.json already exists")
+        print("  [skip] auth.json уже существует")
         return "exists"
 
     try:
@@ -110,16 +117,16 @@ def create_default_admin():
             json.dump(auth_data, f, indent=2)
 
         if sys.stdin.isatty() and not os.getenv("ODYSSEUS_ADMIN_PASSWORD"):
-            print(f"  [ok] Admin account created ({username})")
+            print(f"  [ok] Учётная запись администратора создана ({username})")
         else:
-            print(f"  [ok] Initial admin user created ({username})")
+            print(f"  [ok] Администратор создан ({username})")
             if not os.getenv("ODYSSEUS_ADMIN_PASSWORD"):
-                print(f"        Temporary password: {password}")
-                print(f"        ** Change it after first login. Set ODYSSEUS_ADMIN_PASSWORD to choose your own. **")
+                print(f"        Временный пароль: {password}")
+                print(f"        ** Смените пароль после первого входа. Укажите ODYSSEUS_ADMIN_PASSWORD для выбора своего. **")
         return "created"
     except ImportError:
-        print("  [warn] bcrypt not installed — skipping admin user creation")
-        print("         Run: pip install bcrypt")
+        print("  [warn] bcrypt не установлен — создание администратора пропущено")
+        print("         Выполните: pip install bcrypt")
         return "skipped"
 
 
@@ -128,15 +135,15 @@ def create_env():
     env_path = os.path.join(BASE_DIR, ".env")
     example_path = os.path.join(BASE_DIR, ".env.example")
     if os.path.exists(env_path):
-        print("  [skip] .env already exists")
+        print("  [skip] .env уже существует")
         return
     if os.path.exists(example_path):
         import shutil
         shutil.copy2(example_path, env_path)
-        print("  [ok] .env created from .env.example")
-        print("        ** Edit .env with your LLM host and API keys **")
+        print("  [ok] .env создан из .env.example")
+        print("        ** Укажите в .env адрес LLM-сервера и API-ключи **")
     else:
-        print("  [warn] .env.example not found — create .env manually")
+        print("  [warn] .env.example не найден — создайте .env вручную")
 
 
 def check_deps():
@@ -148,15 +155,15 @@ def check_deps():
         except ImportError:
             missing.append(mod)
     if missing:
-        print(f"\n  [warn] Missing packages: {', '.join(missing)}")
-        print(f"         Run: pip install -r requirements.txt")
+        print(f"\n  [warn] Отсутствуют пакеты: {', '.join(missing)}")
+        print(f"         Выполните: pip install -r requirements.txt")
     else:
-        print("  [ok] All core dependencies installed")
+        print("  [ok] Все основные зависимости установлены")
 
     if os.name != "nt" and shutil.which("tmux") is None:
-        print("\n  [warn] tmux not found")
-        print("         Cookbook uses tmux for background downloads and model serves.")
-        print("         Install it with your OS package manager, for example:")
+        print("\n  [warn] tmux не найден")
+        print("         Каталог моделей использует tmux для фоновых загрузок и запуска.")
+        print("         Установите через менеджер пакетов вашей ОС, например:")
         if sys.platform == "darwin":
             print("           brew install tmux")
         else:
@@ -164,57 +171,54 @@ def check_deps():
             print("           sudo pacman -S tmux")
             print("           sudo dnf install tmux")
     elif os.name != "nt":
-        print("  [ok] tmux installed")
+        print("  [ok] tmux установлен")
 
 
 def main():
-    print("\n=== Odysseus Setup ===\n")
+    print("\n=== Настройка Одиссеи ===\n")
 
-    print("1. Creating directories...")
+    print("1. Создание директорий...")
     create_dirs()
 
-    print("\n2. Environment file...")
+    print("\n2. Файл окружения...")
     create_env()
 
-    print("\n3. Checking dependencies...")
+    print("\n3. Проверка зависимостей...")
     check_deps()
 
-    print("\n4. Initializing database...")
+    print("\n4. Инициализация базы данных...")
     try:
         init_database()
     except Exception as e:
-        print(f"  [warn] Database init failed: {e}")
-        print("         This is OK if dependencies aren't installed yet.")
+        print(f"  [warn] Ошибка инициализации БД: {e}")
+        print("         Это нормально, если зависимости ещё не установлены.")
 
-    print("\n5. Creating initial admin...")
+    print("\n5. Создание администратора...")
 
     admin_status = "failed"
 
     try:
         admin_status = create_default_admin()
     except Exception as e:
-        print(f"  [warn] Admin creation failed: {e}")
+        print(f"  [warn] Ошибка создания администратора: {e}")
         admin_status = "failed"
 
-    print("\n=== Setup complete ===")
-    # start-macos.sh launches the server itself (on its own port) right after
-    # this, so suppress the manual hint there to avoid a contradictory URL.
+    print("\n=== Настройка завершена ===")
     if not os.getenv("ODYSSEUS_SKIP_RUN_HINT"):
-        print(f"\nStart the server with:")
+        print(f"\nЗапустите сервер командой:")
         print(f"  python -m uvicorn app:app --host 127.0.0.1 --port 7000")
-        print(f"\nThen open http://localhost:7000")
+        print(f"\nЗатем откройте http://localhost:7000")
 
-    # Cleaned, action-focused final instruction strings
     if admin_status == "created":
-        print("Login with your admin credentials.\n")
+        print("Войдите с учётными данными администратора.\n")
     elif admin_status == "exists":
-        print("Login with your existing admin credentials.\n")
+        print("Войдите с существующими учётными данными администратора.\n")
     elif admin_status == "skipped":
-        print("Admin creation did not happen: dependencies are missing.\nRun 'pip install bcrypt' and rerun setup.\n")
+        print("Администратор не создан: отсутствуют зависимости.\nВыполните 'pip install bcrypt' и запустите setup заново.\n")
     elif admin_status == "failed":
-        print("Admin creation did not happen: a system or file error occurred.\nCheck write permissions for the 'data' directory and rerun setup.\n")
-    else:  # handling "failed" or any unhandled edge case
-        print("Admin creation did not happen: a system or file error occurred.\nCheck write permissions for the 'data' directory and rerun setup.\n")
+        print("Администратор не создан: системная ошибка.\nПроверьте права на запись в директорию 'data' и запустите setup заново.\n")
+    else:
+        print("Администратор не создан: системная ошибка.\nПроверьте права на запись в директорию 'data' и запустите setup заново.\n")
 
 
 if __name__ == "__main__":
