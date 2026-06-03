@@ -45,11 +45,35 @@ Self-hosted AI-рабочее пространство — то же удобс�
 
 ## Быстрый старт
 
-Настройки по умолчанию работают сразу: клонируйте, запустите, затем настройте модели, поиск и почту в разделе **Настройки**. `.env` редактируйте только для параметров уровня развёртывания: `APP_BIND`, `APP_PORT`, `AUTH_ENABLED`, `DATABASE_URL` или предустановленный пароль администратора.
+Настройки по умолчанию работают сразу: клонируйте, запустите, затем настройте модели, поиск и почту в разделе **Настройки**. `.env` редактируйте только для параметров уровня развёртывания: `APP_BIND`, `APP_PORT`, `AUTH_ENABLED`, `DATABASE_URL` или учётные данные администратора.
 
-При первом запуске Одиссея создаёт учётную запись администратора (`admin`, если не задан `ODYSSEUS_ADMIN_USER`) и выводит временный пароль в терминал. При Docker-установке та же строка будет в `docker compose logs odysseus`. Используйте его для первого входа, затем смените в **Настройках**.
+**Первый вход:** на **Windows** при интерактивном `setup.py` в консоли задаёте **имя пользователя** и **пароль**; в **Docker** (и без TTY) — временный пароль в `docker compose logs odysseus` или заранее через `ODYSSEUS_ADMIN_USER` / `ODYSSEUS_ADMIN_PASSWORD` в `.env`. После входа смените пароль в **Настройках**, если нужно.
+
+**Установка:** [Windows](#windows-нативно) · [Docker](#docker-рекомендуется) · [Linux / macOS](#linux--macos-нативно) · [Apple Silicon](#apple-silicon)
 
 Хотите участвовать в разработке? Смотрите [CONTRIBUTING.md](CONTRIBUTING.md) — инструкции по настройке, тестированию и оформлению pull request.
+
+### Windows (нативно)
+
+1. Установите [Python 3.11+](https://www.python.org/downloads/) (галочка **Add python.exe to PATH**).
+2. `git clone https://github.com/neuronovo-X/odysseus.git` → откройте папку `odysseus`.
+3. Дважды щёлкните **`Запустить.bat`** (то же, что `launch-windows.ps1`: venv, зависимости, setup, сервер).
+4. При **первом** запуске в консоли задайте **логин** (по умолчанию `admin`) и **пароль** (дважды). Откройте **http://127.0.0.1:7000** — браузер может открыться сам. Повторный запуск не переспрашивает, если учётка уже есть.
+
+<details>
+<summary>Windows — PowerShell и ручная установка</summary>
+
+```powershell
+git clone https://github.com/neuronovo-X/odysseus.git
+cd odysseus
+powershell -ExecutionPolicy Bypass -File .\launch-windows.ps1
+```
+
+Или вручную: `py -3.11 -m venv venv` → `venv\Scripts\Activate.ps1` → `pip install -r requirements.txt` → `python setup.py` → `python -m uvicorn app:app --host 127.0.0.1 --port 7000`.
+
+**Требования:** Python 3.11+; для **Каталога** и shell-агента — [Git for Windows](https://git-scm.com/download/win). Локальный GPU (vLLM/SGLang) — через WSL2; проще [Ollama](https://ollama.com/download) → `http://localhost:11434/v1` в Настройках.
+
+</details>
 
 ### Docker (рекомендуется)
 ```bash
@@ -191,43 +215,6 @@ docker compose logs odysseus | grep -E 'ChromaDB|MemoryVectorStore|DEGRADED'
 **macOS — детали.** `start-macos.sh` устанавливает зависимости Homebrew, создаёт venv, запускает setup и стартует uvicorn на порту `7860` (AirPlay часто занимает `7000`). Использует llama.cpp/Ollama для Metal. vLLM/SGLang требуют CUDA/ROCm и не работают на macOS. MLX-only модели Одиссеей не обслуживаются.
 
 </details>
-
-### Windows (нативно)
-
-**Самый простой спуск**
-
-1. Установите [Python 3.11+](https://www.python.org/downloads/) (при установке включите **Add python.exe to PATH**).
-2. Клонируйте репозиторий (или распакуйте архив) и откройте папку проекта.
-3. Дважды щёлкните **`Запустить.bat`** — он запускает `launch-windows.ps1` (venv, зависимости, setup, сервер). Альтернатива: PowerShell в папке проекта → команда ниже в блоке «Однострочный запуск».
-4. При **первом** запуске `setup.py` в консоли спросит **имя пользователя** (по умолчанию `admin`) и **пароль** (дважды для подтверждения). Запомните их — они нужны для входа. Затем откройте **http://127.0.0.1:7000** (браузер может открыться сам). Повторный запуск батника setup не переспрашивает, если учётная запись уже создана.
-
-Без интерактива (Docker, CI) можно задать `ODYSSEUS_ADMIN_USER` и `ODYSSEUS_ADMIN_PASSWORD` в `.env` — см. таблицу переменных ниже.
-
-**Однострочный запуск** (создаёт venv, устанавливает зависимости, запускает setup и сервер; можно запускать повторно):
-
-```powershell
-git clone https://github.com/neuronovo-X/odysseus.git
-cd odysseus
-powershell -ExecutionPolicy Bypass -File .\launch-windows.ps1
-```
-
-Или вручную:
-
-```powershell
-git clone https://github.com/neuronovo-X/odysseus.git
-cd odysseus
-py -3.11 -m venv venv
-venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python setup.py
-python -m uvicorn app:app --host 127.0.0.1 --port 7000
-```
-
-Если `python` указывает на старый интерпретатор, используйте `py -3.12` (или другую установленную версию 3.11+) для создания venv.
-
-**Требования:** Python 3.11+. Основное приложение (чат, агент, память, документы, почта, календарь, глубокое исследование) работает полностью нативно. Для фоновых загрузок в **Каталоге** и инструмента shell-агента установите также [Git for Windows](https://git-scm.com/download/win) (предоставляет `bash.exe`). Локальный GPU-запуск vLLM/SGLang требует Linux/WSL2; для локальной модели на Windows проще всего [Ollama](https://ollama.com/download) — укажите `http://localhost:11434/v1` в Настройках.
-
-Откройте `http://127.0.0.1:7000`, войдите с логином и паролем, заданными при первом `setup.py`, и настройте всё остальное в **Настройках**.
 
 ## Безопасность
 Одиссея — это self-hosted рабочее пространство с мощными локальными инструментами: доступ к оболочке, загрузка файлов, скачивание моделей, веб-поиск, интеграции почты/календаря, API-токены. Обращайтесь с ней как с консолью администратора.
